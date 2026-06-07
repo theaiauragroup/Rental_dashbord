@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Aiaura Fleets — Partner Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --grad-start: #22c55e;
+  --grad-end: #84cc16;
+  --gradient: linear-gradient(90deg, #22c55e 0%, #84cc16 100%);
+  --bg: #ffffff;
+  --bg-soft: #fafafa;
+  --bg-card: #f9fafb;
+  --border: #e5e7eb;
+  --text: #111827;
+  --text-dim: #6b7280;
+  --text-faint: #9ca3af;
+  --accent: #16a34a;
+  --accent-soft: #f0fdf4;
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { overflow-x: hidden; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.portal-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.portal-header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 18px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.portal-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.portal-logo-mark {
+  width: 38px; height: 38px;
+  background: var(--gradient);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.portal-logo-text {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.02em;
+}
+.portal-logo-text .name {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.portal-logo-sub {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-family: var(--mono);
+  margin-top: 2px;
+}
+.portal-userbar {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px;
+}
+.portal-userbar .email { color: var(--text-dim); }
+.portal-userbar button {
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.portal-userbar button:hover { background: var(--bg-card); }
+.portal-content {
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px;
+  width: 100%;
+}
+.portal-placeholder {
+  background: var(--bg-card);
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 48px 32px;
+  text-align: center;
+}
+.portal-placeholder h1 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.portal-placeholder p {
+  color: var(--text-dim);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+/* ============================================================
+   PHASE 9 — Dashboard styles (replaces portal-placeholder)
+   ============================================================ */
+.dash-grid {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.dash-hero {
+  background: linear-gradient(135deg, #ecfccb 0%, #dcfce7 100%);
+  border-radius: 16px;
+  padding: 28px 32px;
+  border: 1px solid #d9f99d;
+}
+.dash-hero h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+.dash-hero p {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.role-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 8px;
+  background: var(--gradient);
+  color: white;
+}
+.dash-card {
+  background: white;
+  border-radius: 14px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+}
+.dash-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+.dash-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text);
+}
+.dash-card-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.dash-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+.stat-tile {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.stat-tile-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.stat-tile-value {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+.share-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.share-row:last-child { margin-bottom: 0; }
+.share-input {
+  flex: 1;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--mono);
+  background: var(--bg-card);
+  color: var(--text);
+  outline: none;
+  min-width: 0;
+  text-overflow: ellipsis;
+}
+.share-input:focus { border-color: var(--accent); }
+.share-btn {
+  padding: 0 16px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+}
+.share-btn:hover { border-color: var(--accent); color: var(--accent); }
+.share-btn.copied { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.share-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+.row-list {
+  display: flex;
+  flex-direction: column;
+}
+.row-list-item {
+  display: grid;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.row-list-item:last-child { border-bottom: none; }
+.leads-grid { grid-template-columns: 1.4fr 1fr 1fr 0.9fr 110px; }
+.comms-grid { grid-template-columns: 1.4fr 0.7fr 1fr 0.9fr 110px; }
+.row-list-head {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.row-list-empty {
+  padding: 24px 12px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-style: italic;
+}
+.row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.row-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.stage-pill, .attr-pill, .comm-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+.stage-New          { background: #dbeafe; color: #1e40af; }
+.stage-In-progress  { background: #fef3c7; color: #92400e; }
+.stage-Won          { background: #dcfce7; color: #166534; }
+.stage-Lost         { background: #f3f4f6; color: #6b7280; }
+.attr-link  { background: #e0e7ff; color: #3730a3; }
+.attr-code  { background: #fae8ff; color: #86198f; }
+.attr-none  { background: #f3f4f6; color: #6b7280; }
+.attr-manual_internal { background: #f3f4f6; color: #6b7280; }
+.comm-pending { background: #fef3c7; color: #92400e; }
+.comm-owed    { background: #fed7aa; color: #9a3412; }
+.comm-paid    { background: #dcfce7; color: #166534; }
+.comm-voided  { background: #f3f4f6; color: #6b7280; }
+.amount {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: var(--mono);
+}
+.date-faint { font-size: 11px; color: var(--text-faint); }
+.profile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.profile-row:last-child { border-bottom: none; }
+.profile-row .label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.profile-row .value {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 500;
+}
+.profile-row .value-mono {
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.btn-mini {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--text);
+  cursor: pointer;
+}
+.btn-mini:hover { border-color: var(--accent); color: var(--accent); }
+.dash-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #111827;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 1000;
+}
+.toast.show { opacity: 1; }
+@media (max-width: 700px) {
+  .dash-grid { padding: 16px; gap: 14px; }
+  .dash-hero { padding: 22px 20px; }
+  .dash-card { padding: 18px 18px; }
+  .dash-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .leads-grid, .comms-grid {
+    grid-template-columns: 1fr;
+    gap: 4px;
+    padding: 14px 0;
+  }
+  .row-list-head { display: none; }
+  .share-row { flex-direction: column; }
+  .share-btn { padding: 10px; }
+}
+
+</style>
+</head>
+<body>
+<div class="portal-shell" id="portalShell" style="display:none;">
+  <header class="portal-header">
+    <div class="portal-logo">
+      <div class="portal-logo-mark">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2 L4 7 v10 l8 5 8-5 V7z"/>
+          <path d="M12 22 V12"/>
+          <path d="M4 7 L12 12 L20 7"/>
+        </svg>
+      </div>
+      <div>
+        <div class="portal-logo-text"><span class="name">Aiaura</span> Partners</div>
+        <div class="portal-logo-sub">Partner Portal</div>
+      </div>
+    </div>
+    <div class="portal-userbar">
+      <span class="email" id="portalUserEmail">—</span>
+      <button onclick="portalLogout()">Sign out</button>
+    </div>
+  </header>
+  <main class="portal-content">
+    <div class="dash-grid" id="dashGrid">
+      <div class="dash-loading">Loading your dashboard…</div>
+    </div>
+  </main>
+</div>
+<div id="portalToast" class="toast"></div>
+
+<script>
+// ============================================================
+// PARTNER PORTAL — Phase 4 shell
+// ============================================================
+// Authenticated entry for Influencer and Brand roles.
+// Login UI is hosted in the CRM (index.html) — partners coming in fresh land here,
+// get redirected to the CRM login, sign in there, and the CRM routing logic sends
+// them back here once a partner role is confirmed.
+//
+// Schema rule (per RBAC_FINAL_DECISIONS Section 13):
+//   Internal users visiting /portal MUST be redirected to /crm.
+//   Partner users visiting /crm get redirected here.
+//
+// Data rule (per Risk 7 in MASTER_HANDOFF_GUIDE):
+//   This page queries partner_lead_view, NOT the leads table. Phase 9 wires that up.
+// ============================================================
+
+const SUPABASE_URL = 'https://fuhnebezhgzhckvclubw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1aG5lYmV6aGd6aGNrdmNsdWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjQwNzEsImV4cCI6MjA5MzIwMDA3MX0.5OszIplRl1UEjLqElbfsek6R7y3nUWu1QVdiGRGrmtc';
+
+// Load Supabase JS from CDN
+const supaScript = document.createElement('script');
+supaScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+document.head.appendChild(supaScript);
+
+let supaClient = null;
+const _supaReady = new Promise((resolve) => {
+  supaScript.onload = () => { supaClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); resolve(); };
+  supaScript.onerror = () => { console.error('Failed to load Supabase JS'); resolve(); };
+});
+
+function _destinationForRole(role) {
+  if (['owner','manager','sales','broker'].includes(role)) return 'crm';
+  if (['influencer','brand'].includes(role)) return 'portal';
+  return null;
+}
+
+async function portalInit() {
+  await _supaReady;
+  if (!supaClient) return;
+
+  // Special: invite-acceptance with a partner-role invite (influencer/brand) should
+  // happen in the CRM UI which renders the invite-accept screen. Bounce there.
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('invite')) {
+    window.location.href = '/index.html?invite=' + encodeURIComponent(params.get('invite'));
+    return;
+  }
+
+  // Get session
+  const { data: { session } } = await supaClient.auth.getSession();
+  if (!session) {
+    // Send to CRM login — there's only one login UI for the whole system.
+    window.location.href = '/index.html';
+    return;
+  }
+
+  // Check role + load full profile (we need partner fields for the dashboard).
+  const { data: profile, error } = await supaClient
+    .from('users')
+    .select('id, name, email, role, deactivated_at, promo_code, referral_code, commission_percent, discount_percent, manager_id, created_at')
+    .eq('id', session.user.id)
+    .maybeSingle();
+
+  if (error || !profile) {
+    await supaClient.auth.signOut();
+    window.location.href = '/index.html';
+    return;
+  }
+  if (profile.deactivated_at) {
+    await supaClient.auth.signOut();
+    window.location.href = '/index.html';
+    return;
+  }
+
+  const dest = _destinationForRole(profile.role);
+  if (dest === 'crm') {
+    window.location.href = '/index.html';
+    return;
+  }
+  if (dest !== 'portal') {
+    await supaClient.auth.signOut();
+    window.location.href = '/index.html';
+    return;
+  }
+
+  // Authenticated partner — show the shell and load the dashboard.
+  document.getElementById('portalUserEmail').textContent = profile.email || session.user.email || '';
+  document.getElementById('portalShell').style.display = 'flex';
+
+  _profile = profile;
+  await _loadDashboardData();
+  _renderDashboard();
+}
+
+async function portalLogout() {
+  if (!confirm('Sign out of the Partner Portal?')) return;
+  if (supaClient) await supaClient.auth.signOut();
+  window.location.href = '/index.html';
+}
+
+// ============================================================
+// PHASE 9 — Partner dashboard
+// ============================================================
+// Data sources (all RLS-filtered server-side):
+//   - users (own row, via users_select_self) — for profile/promo/referral codes
+//   - partner_lead_view (filters to where referred_by_partner_id = auth.uid())
+//   - commissions (commissions_partner_self policy filters to partner_user_id = auth.uid())
+//
+// All three queries are issued in parallel after auth completes.
+// ============================================================
+
+let _profile = null;
+let _leads = [];
+let _commissions = [];
+
+function _esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+function _fmtRelative(epochMs) {
+  if (!epochMs) return '—';
+  const ms = Number(epochMs);
+  const diff = Date.now() - ms;
+  const s = Math.floor(diff / 1000);
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  const d = Math.floor(h / 24);
+  if (d < 30) return d + 'd ago';
+  const mo = Math.floor(d / 30);
+  if (mo < 12) return mo + 'mo ago';
+  return Math.floor(mo / 12) + 'y ago';
+}
+
+function _fmtMoneyUsd(n) {
+  // Section 8 of RBAC_FINAL_DECISIONS locks USD company-wide. Format: $1,234.56
+  if (n == null) return '$0.00';
+  const v = Number(n);
+  if (isNaN(v)) return '$0.00';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function _firstName(name) {
+  if (!name) return '';
+  const idx = String(name).indexOf(' ');
+  return idx > 0 ? name.slice(0, idx) : name;
+}
+
+function _roleLabel(role) {
+  return ({
+    influencer: 'Influencer Partner',
+    brand: 'Brand Partner',
+    broker: 'Broker'
+  })[role] || role;
+}
+
+async function _loadDashboardData() {
+  // Issue all three in parallel for speed.
+  const [leadsRes, commsRes] = await Promise.all([
+    supaClient.from('partner_lead_view').select('*').order('created_at', { ascending: false }).limit(200),
+    supaClient.from('commissions').select('*').eq('partner_user_id', _profile.id).order('created_at', { ascending: false }).limit(200)
+  ]);
+
+  if (leadsRes.error) console.warn('partner_lead_view fetch error:', leadsRes.error.message);
+  if (commsRes.error) console.warn('commissions fetch error:', commsRes.error.message);
+
+  _leads = leadsRes.data || [];
+  _commissions = commsRes.data || [];
+}
+
+function _renderDashboard() {
+  const grid = document.getElementById('dashGrid');
+  if (!grid || !_profile) return;
+
+  // Compute stats
+  const total = _leads.length;
+  const won = _leads.filter(l => l.stage_bucket === 'Won').length;
+  const pendingAmount = _commissions
+    .filter(c => c.status === 'pending' || c.status === 'owed')
+    .reduce((sum, c) => sum + Number(c.commission_amount || 0), 0);
+  const paidAmount = _commissions
+    .filter(c => c.status === 'paid')
+    .reduce((sum, c) => sum + Number(c.commission_amount || 0), 0);
+
+  // Build referral link. If the host has the /refer/{code} rewrite configured,
+  // this is the canonical URL. The fallback ?p= form also works.
+  const referralUrl = _profile.referral_code
+    ? `${window.location.origin}/refer/${encodeURIComponent(_profile.referral_code)}`
+    : '';
+
+  grid.innerHTML = `
+    <div class="dash-hero">
+      <h1>Hi, ${_esc(_firstName(_profile.name))} 👋</h1>
+      <p>Welcome to your Partner Portal. Share your link below to start earning commissions on every successful referral.</p>
+      <span class="role-pill">${_esc(_roleLabel(_profile.role))}</span>
+    </div>
+
+    ${_renderShareCard(referralUrl)}
+    ${_renderStatsCard(total, won, pendingAmount, paidAmount)}
+    ${_renderLeadsCard()}
+    ${_renderCommissionsCard()}
+    ${_renderProfileCard()}
+  `;
+}
+
+function _renderShareCard(referralUrl) {
+  if (!_profile.referral_code && !_profile.promo_code) {
+    return `
+      <div class="dash-card">
+        <div class="dash-card-head"><div>
+          <div class="dash-card-title">Share &amp; earn</div>
+          <div class="dash-card-sub">Your referral link and promo code haven't been set yet — your account manager will configure them soon.</div>
+        </div></div>
+      </div>
+    `;
+  }
+  return `
+    <div class="dash-card">
+      <div class="dash-card-head"><div>
+        <div class="dash-card-title">Share &amp; earn</div>
+        <div class="dash-card-sub">${_profile.commission_percent != null ? `You earn <strong style="color:var(--accent);">${_esc(_profile.commission_percent)}%</strong> commission on every successful deal.` : 'Use the link or code below to refer leads.'}</div>
+      </div></div>
+
+      ${_profile.referral_code ? `
+        <div class="share-label">Your referral link</div>
+        <div class="share-row">
+          <input class="share-input" id="shareLink" value="${_esc(referralUrl)}" readonly onclick="this.select();" />
+          <button class="share-btn" id="copyLinkBtn" onclick="_copyToClipboard('shareLink', 'copyLinkBtn', 'Link copied')">Copy link</button>
+        </div>
+      ` : ''}
+
+      ${_profile.promo_code ? `
+        <div class="share-label" style="margin-top:14px;">Your promo code</div>
+        <div class="share-row">
+          <input class="share-input" id="sharePromo" value="${_esc(_profile.promo_code)}" readonly onclick="this.select();" />
+          <button class="share-btn" id="copyPromoBtn" onclick="_copyToClipboard('sharePromo', 'copyPromoBtn', 'Code copied')">Copy code</button>
+        </div>
+        <div class="share-label" style="margin-top:8px;font-style:normal;text-transform:none;letter-spacing:0;font-weight:400;color:var(--text-faint);font-size:11px;">
+          When someone enters your promo code on our form, you get credit even if they came in through another partner's link.
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function _renderStatsCard(total, won, pendingAmount, paidAmount) {
+  return `
+    <div class="dash-stats">
+      <div class="stat-tile">
+        <div class="stat-tile-label">Total referrals</div>
+        <div class="stat-tile-value">${total}</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Won deals</div>
+        <div class="stat-tile-value">${won}</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Pending earnings</div>
+        <div class="stat-tile-value">${_fmtMoneyUsd(pendingAmount)}</div>
+      </div>
+      <div class="stat-tile">
+        <div class="stat-tile-label">Paid out</div>
+        <div class="stat-tile-value">${_fmtMoneyUsd(paidAmount)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function _renderLeadsCard() {
+  const items = _leads.slice(0, 50);
+  return `
+    <div class="dash-card">
+      <div class="dash-card-head"><div>
+        <div class="dash-card-title">Your referrals</div>
+        <div class="dash-card-sub">First names only — we don't share contact details. Latest 50 shown.</div>
+      </div></div>
+      ${items.length === 0
+        ? `<div class="row-list-empty">No referrals yet. Share your link or promo code to get started.</div>`
+        : `
+          <div class="row-list">
+            <div class="row-list-item leads-grid row-list-head">
+              <div>Lead</div><div>Stage</div><div>Attribution</div><div>Date</div><div style="text-align:right;">Commission</div>
+            </div>
+            ${items.map(_renderLeadRow).join('')}
+          </div>
+        `}
+    </div>
+  `;
+}
+
+function _renderLeadRow(l) {
+  const stageClass = 'stage-' + String(l.stage_bucket || 'In-progress').replace(/\s+/g, '-');
+  const attrClass = 'attr-' + (l.attribution_method || 'none');
+  const commLabel = l.commission_status
+    ? `<span class="comm-pill comm-${_esc(l.commission_status)}">${_esc(l.commission_status)}</span><div class="date-faint" style="margin-top:3px;">${_profile.commission_percent != null ? _fmtMoneyUsd(l.commission_amount) : ''}</div>`
+    : '<span class="date-faint">—</span>';
+  return `
+    <div class="row-list-item leads-grid">
+      <div>
+        <div class="row-name">${_esc(l.lead_first_name || '—')}</div>
+        ${l.promo_code_used ? `<div class="row-sub" style="font-family:var(--mono);">via ${_esc(l.promo_code_used)}</div>` : ''}
+      </div>
+      <div><span class="stage-pill ${stageClass}">${_esc(l.stage_bucket || '—')}</span></div>
+      <div><span class="attr-pill ${attrClass}">${_esc(l.attribution_method || 'none')}</span></div>
+      <div class="date-faint">${_fmtRelative(l.created_at)}</div>
+      <div style="text-align:right;">${commLabel}</div>
+    </div>
+  `;
+}
+
+function _renderCommissionsCard() {
+  const items = _commissions.slice(0, 50);
+  return `
+    <div class="dash-card">
+      <div class="dash-card-head"><div>
+        <div class="dash-card-title">Your commissions</div>
+        <div class="dash-card-sub">Pending earnings become "owed" when a deal closes, and "paid" once we settle. Latest 50 shown.</div>
+      </div></div>
+      ${items.length === 0
+        ? `<div class="row-list-empty">No commissions yet.</div>`
+        : `
+          <div class="row-list">
+            <div class="row-list-item comms-grid row-list-head">
+              <div>Lead</div><div>Rate</div><div>Status</div><div>Date</div><div style="text-align:right;">Amount</div>
+            </div>
+            ${items.map(_renderCommRow).join('')}
+          </div>
+        `}
+    </div>
+  `;
+}
+
+function _renderCommRow(c) {
+  // Look up the lead's first name from the leads array (if we have it).
+  const lead = _leads.find(l => l.id === c.lead_id);
+  const leadLabel = lead ? lead.lead_first_name : (c.lead_id || '—');
+  const dateLabel = c.paid_at ? _fmtRelative(c.paid_at) + ' (paid)'
+                  : c.won_at  ? _fmtRelative(c.won_at)  + ' (won)'
+                  : _fmtRelative(c.created_at);
+  return `
+    <div class="row-list-item comms-grid">
+      <div>
+        <div class="row-name">${_esc(leadLabel)}</div>
+        ${c.voided_reason ? `<div class="row-sub">Voided: ${_esc(c.voided_reason)}</div>` : ''}
+      </div>
+      <div class="date-faint">${_esc(c.commission_percent_snapshot)}%</div>
+      <div><span class="comm-pill comm-${_esc(c.status)}">${_esc(c.status)}</span></div>
+      <div class="date-faint">${dateLabel}</div>
+      <div style="text-align:right;" class="amount">${_fmtMoneyUsd(c.commission_amount)}</div>
+    </div>
+  `;
+}
+
+function _renderProfileCard() {
+  return `
+    <div class="dash-card">
+      <div class="dash-card-head"><div>
+        <div class="dash-card-title">Profile</div>
+        <div class="dash-card-sub">Your account details. To change commission rate or partner type, contact your account manager.</div>
+      </div></div>
+      <div class="profile-row">
+        <span class="label">Name</span>
+        <span class="value">${_esc(_profile.name || '—')} <button class="btn-mini" style="margin-left:8px;" onclick="_editName()">Edit</button></span>
+      </div>
+      <div class="profile-row">
+        <span class="label">Email</span>
+        <span class="value value-mono">${_esc(_profile.email || '—')}</span>
+      </div>
+      <div class="profile-row">
+        <span class="label">Password</span>
+        <span class="value"><button class="btn-mini" onclick="_resetPassword()">Send reset email</button></span>
+      </div>
+      ${_profile.commission_percent != null ? `
+        <div class="profile-row">
+          <span class="label">Commission rate</span>
+          <span class="value">${_esc(_profile.commission_percent)}%</span>
+        </div>
+      ` : ''}
+      ${_profile.discount_percent != null && Number(_profile.discount_percent) > 0 ? `
+        <div class="profile-row">
+          <span class="label">Discount offered to leads</span>
+          <span class="value">${_esc(_profile.discount_percent)}%</span>
+        </div>
+      ` : ''}
+      <div class="profile-row">
+        <span class="label">Member since</span>
+        <span class="value">${_fmtRelative(_profile.created_at)}</span>
+      </div>
+    </div>
+  `;
+}
+
+// ---- Profile actions ----
+
+async function _editName() {
+  const current = _profile.name || '';
+  const next = window.prompt('Update your name:', current);
+  if (next == null) return;
+  const trimmed = String(next).trim();
+  if (!trimmed || trimmed === current) return;
+  if (trimmed.length < 2 || trimmed.length > 120) {
+    _toast('Name must be 2-120 characters');
+    return;
+  }
+  const { error } = await supaClient.from('users').update({ name: trimmed }).eq('id', _profile.id);
+  if (error) { _toast('Failed: ' + error.message); return; }
+  _profile.name = trimmed;
+  _renderDashboard();
+  _toast('Saved');
+}
+
+async function _resetPassword() {
+  if (!_profile.email) { _toast('No email on file'); return; }
+  if (!confirm(`Send a password reset link to ${_profile.email}?`)) return;
+  const { error } = await supaClient.auth.resetPasswordForEmail(_profile.email, {
+    redirectTo: window.location.origin + '/index.html?reset=1'
+  });
+  if (error) { _toast('Failed: ' + error.message); return; }
+  _toast('Reset email sent — check your inbox');
+}
+
+// ---- Helpers ----
+
+function _toast(msg) {
+  const el = document.getElementById('portalToast');
+  if (!el) return;
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2200);
+}
+
+async function _copyToClipboard(inputId, btnId, successMsg) {
+  const el = document.getElementById(inputId);
+  if (!el) return;
+  try {
+    await navigator.clipboard.writeText(el.value);
+  } catch(e) {
+    // Fallback for older browsers / non-secure contexts
+    el.select();
+    try { document.execCommand('copy'); } catch(e2) { _toast('Copy failed — select and copy manually'); return; }
+  }
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    const orig = btn.textContent;
+    btn.classList.add('copied');
+    btn.textContent = '✓ Copied';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = orig; }, 1600);
+  }
+  _toast(successMsg || 'Copied');
+}
+
+window.addEventListener('DOMContentLoaded', portalInit);
+</script>
+</body>
+</html>
