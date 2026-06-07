@@ -24102,7 +24102,7 @@ function renderSettings() {
     { id: 'debug', label: 'Self-Test' }
   ];
  document.getElementById('settingsModal').innerHTML = `
-  <div class="modal">
+  <div class="modal" onclick="event.stopPropagation()">
    <div class="modal-header"><div><div class="modal-title">Settings</div></div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
    <div class="modal-body">
     <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
