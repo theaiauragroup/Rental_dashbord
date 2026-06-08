@@ -963,7 +963,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
    #viewContent.innerHTML is replaced. The new direct children get a brief fade-up,
    so the swap feels smooth rather than instant. Targeted slot re-renders inside
    modals or panels are NOT affected since they don't sit directly under #viewContent. */
-#viewContent > * {
+#viewContent.view-switching > * {
   animation: viewContentFadeIn var(--t-medium) var(--ease-out);
 }
 @keyframes viewContentFadeIn {
@@ -6849,6 +6849,7 @@ function _autoTransitionStage(lead) {
 // Issue 7 — UI-freshness helper used by action handlers after they mutate + save
 // a lead. Ensures the on-screen view (lead detail OR dashboard) reflects the
 // new state immediately without manual refresh.
+let _afterMutationTimer = null;
 function _afterLeadMutation(lead) {
   if (!lead) return;
   try {
@@ -6857,7 +6858,9 @@ function _afterLeadMutation(lead) {
       if (typeof openLeadDetail === 'function') openLeadDetail(lead.id);
       else if (typeof renderAll === 'function') renderAll();
     } else if (typeof renderAll === 'function') {
-      renderAll();
+      // Debounce: if multiple mutations fire in quick succession, collapse into one render.
+      if (_afterMutationTimer) clearTimeout(_afterMutationTimer);
+      _afterMutationTimer = setTimeout(function() { _afterMutationTimer = null; renderAll(); }, 80);
     }
   } catch (e) { console.warn('[afterLeadMutation]', e); }
 }
@@ -17084,7 +17087,10 @@ function refreshUserPill() {
 function switchView(view) {
  state.view = view;
  document.querySelectorAll('.view-tab').forEach(t =>t.classList.toggle('active', t.dataset.view === view));
+ const wrap = document.getElementById('viewContent');
+ wrap.classList.add('view-switching');
  renderContent();
+ setTimeout(function() { wrap.classList.remove('view-switching'); }, 250);
 }
 function switchLeadType(type) {
  state.leadType = type;
@@ -31886,6 +31892,20 @@ function setupRealtimeSync() {
   // refresh plan steps directly when those rows change so partial updates
   // (one step sent on another device) come through quickly.
   const tables = ['leads', 'tasks', 'notifications', 'handoff_notes', 'snoozed_leads', 'people', 'plans', 'plan_steps'];
+
+  // Debounce: if multiple tables fire events in rapid succession, collapse into
+  // a single loadAll+renderAll. Without this, 8 simultaneous events = 8 full
+  // re-renders causing leads to flash/disappear repeatedly.
+  let _realtimeDebounceTimer = null;
+  function _debouncedReload() {
+    if (_realtimeDebounceTimer) clearTimeout(_realtimeDebounceTimer);
+    _realtimeDebounceTimer = setTimeout(async function() {
+      _realtimeDebounceTimer = null;
+      await loadAll();
+      renderAll();
+    }, 300);
+  }
+
   tables.forEach(table => {
     supaClient
       .channel('sync:' + table)
@@ -31897,12 +31917,7 @@ function setupRealtimeSync() {
           _updateTodayTabBadge();
           return;
         }
-        await loadAll();
-        // Re-attach plans/steps to people on each lead (they live in lead.people[].plans now)
-        // Plan tables themselves are written but lead.people serialization is what we render from.
-        // Since we save the full lead JSON whenever any step changes (see markStepSent), reloading
-        // leads picks up the change automatically.
-        renderAll();
+        _debouncedReload();
       })
       .subscribe();
   });
