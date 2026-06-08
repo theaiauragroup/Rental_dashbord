@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Aiaura Fleets — Referral</title>
+<meta name="robots" content="noindex,nofollow" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --grad-start: #22c55e;
+  --grad-end: #84cc16;
+  --gradient: linear-gradient(90deg, #22c55e 0%, #84cc16 100%);
+  --bg: #ffffff;
+  --bg-soft: linear-gradient(135deg, #ecfccb, #dcfce7);
+  --bg-card: #f9fafb;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #111827;
+  --text-dim: #6b7280;
+  --text-faint: #9ca3af;
+  --accent: #16a34a;
+  --hot: #dc2626;
+  --warn: #d97706;
+  --font: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 40px rgba(0,0,0,0.12);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: var(--font);
+  background: var(--bg-soft);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.55;
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+.shell {
+  width: 100%;
+  max-width: 560px;
+  margin: 30px auto;
+}
+.card {
+  background: white;
+  border-radius: 18px;
+  padding: 36px 32px;
+  box-shadow: var(--shadow-lg);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.brand-mark {
+  width: 36px; height: 36px;
+  background: var(--gradient);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+}
+.brand-text {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.brand-text .name {
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.hero {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.hero-emoji { font-size: 40px; margin-bottom: 8px; line-height: 1; }
+.hero-title {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  color: var(--text);
+}
+.hero-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  max-width: 380px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+.field {
+  margin-bottom: 14px;
+}
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.field input, .field textarea {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  background: white;
+  color: var(--text);
+  transition: border-color 0.15s ease;
+}
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.field textarea { min-height: 76px; resize: vertical; }
+.field .opt {
+  font-size: 11px;
+  color: var(--text-faint);
+  font-weight: 400;
+  margin-left: 4px;
+}
+.field-error {
+  color: var(--hot);
+  font-size: 12px;
+  margin-top: 5px;
+  display: none;
+}
+/* Honeypot — invisible to humans, picked up by bots that fill every field */
+.hp {
+  position: absolute !important;
+  left: -9999px !important;
+  width: 1px !important;
+  height: 1px !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  tab-index: -1;
+}
+.row { display: flex; gap: 12px; }
+.row .field { flex: 1; }
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--gradient);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: inherit;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+.submit-btn:hover { transform: translateY(-1px); }
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.global-err {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  display: none;
+}
+.captcha-wrap {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.captcha-q {
+  font-size: 13px;
+  font-weight: 600;
+  color: #78350f;
+  margin-bottom: 6px;
+}
+.foot {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-faint);
+}
+.foot a { color: var(--text-dim); text-decoration: none; }
+
+/* States */
+#loadingState, #invalidState, #successState, #rateLimitedState, #formState {
+  display: none;
+}
+#loadingState.show, #invalidState.show, #successState.show,
+#rateLimitedState.show, #formState.show {
+  display: block;
+}
+.center-state {
+  text-align: center;
+  padding: 24px 8px;
+}
+.center-state .icon { font-size: 56px; line-height: 1; margin-bottom: 12px; }
+.center-state h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.center-state p {
+  color: var(--text-dim);
+  max-width: 420px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+@media (max-width: 480px) {
+  body { padding: 12px; }
+  .card { padding: 26px 20px; }
+  .hero-title { font-size: 20px; }
+  .row { flex-direction: column; gap: 0; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2 L4 7 v10 l8 5 8-5 V7z"/>
+        <path d="M12 22 V12"/>
+        <path d="M4 7 L12 12 L20 7"/>
+      </svg>
+    </div>
+    <div class="brand-text"><span class="name">Aiaura</span> Fleets</div>
+  </div>
+
+  <div class="card">
+    <!-- Loading partner info -->
+    <div id="loadingState" class="show">
+      <div class="center-state">
+        <div style="font-size:13px;color:var(--text-dim);padding:30px 0;">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Invalid / deactivated partner -->
+    <div id="invalidState">
+      <div class="center-state">
+        <div class="icon">🔗</div>
+        <h1>This link isn't active</h1>
+        <p>The referral page you're looking for isn't available anymore. Please check with the person who shared it.</p>
+      </div>
+    </div>
+
+    <!-- Rate-limited -->
+    <div id="rateLimitedState">
+      <div class="center-state">
+        <div class="icon">⏳</div>
+        <h1>One moment</h1>
+        <p>You've already sent a few referrals from this device recently. Please try again later.</p>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div id="successState">
+      <div class="center-state">
+        <div class="icon">✓</div>
+        <h1>Thanks — we're on it</h1>
+        <p id="successMsg">Our team will be in touch within 24 hours.</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div id="formState">
+      <div class="hero">
+        <div class="hero-emoji">👋</div>
+        <div class="hero-title" id="heroTitle">Hi there</div>
+        <div class="hero-sub">Fill in a few details and our team will reach out within 24 hours.</div>
+      </div>
+
+      <div id="globalErr" class="global-err"></div>
+
+      <form id="referForm" autocomplete="off" novalidate>
+        <div class="field">
+          <label for="f_name">Full name</label>
+          <input id="f_name" type="text" autocomplete="name" maxlength="120" required />
+          <div class="field-error" id="err_name"></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="f_phone">Phone</label>
+            <input id="f_phone" type="tel" autocomplete="tel" maxlength="40" required />
+            <div class="field-error" id="err_phone"></div>
+          </div>
+          <div class="field">
+            <label for="f_email">Email</label>
+            <input id="f_email" type="email" autocomplete="email" maxlength="120" required />
+            <div class="field-error" id="err_email"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="f_city">City <span class="opt">(optional)</span></label>
+          <input id="f_city" type="text" autocomplete="address-level2" maxlength="80" />
+        </div>
+        <div class="field">
+          <label for="f_looking">What are you looking for? <span class="opt">(optional)</span></label>
+          <textarea id="f_looking" maxlength="500" placeholder="A quick description of what you need…"></textarea>
+        </div>
+        <div class="field">
+          <label for="f_headache">Your main headache in your business? <span class="opt">(optional)</span></label>
+          <textarea id="f_headache" maxlength="500" placeholder="What's the biggest pain point right now?"></textarea>
+        </div>
+        <div class="field">
+          <label for="f_promo">Promo code <span class="opt">(if you have one)</span></label>
+          <input id="f_promo" type="text" maxlength="20" style="font-family: 'IBM Plex Mono', monospace; text-transform: uppercase;" />
+        </div>
+
+        <!-- Honeypot — bots fill it, humans don't see it. Real users leave it empty. -->
+        <div class="hp" aria-hidden="true">
+          <label for="hp_website">Website</label>
+          <input id="hp_website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <div id="captchaWrap" class="captcha-wrap" style="display:none;">
+          <div class="captcha-q" id="captchaQ">What is 1 + 1?</div>
+          <input id="captchaA" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5"
+            style="width:120px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:14px;font-family:inherit;" />
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Send my details</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="foot">
+    Powered by <a href="/" target="_blank" rel="noopener">Aiaura Fleets</a>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// PHASE 7 — Public Lead Referral Form
+// ============================================================
+// Standalone page. Anonymous. Calls two SECURITY DEFINER Postgres functions
+// that the migration amendment provides:
+//
+//   - get_partner_by_referral_code(p_code TEXT) RETURNS (id, name, first_name)
+//     Returns NULL for nonexistent OR deactivated partners (per Section 7).
+//
+//   - submit_referral_lead(p_partner_code, p_full_name, p_phone, p_email,
+//                          p_city, p_looking_for, p_headache, p_promo_code)
+//     RETURNS TEXT (status code)
+//     Handles attribution (code beats link), self-referral block, dedup
+//     silent-reject, INSERT into leads. Logs blocked attempts to audit_log.
+//
+// If the functions aren't deployed yet, the page degrades gracefully:
+//   - Partner lookup returns nothing → "this link isn't active"
+//   - Form submit gets an RPC error → generic global error
+//
+// See PHASE_7_README "SQL functions Phase 7 needs" for the function bodies.
+// ============================================================
+
+const SUPABASE_URL = 'https://fuhnebezhgzhckvclubw.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1aG5lYmV6aGd6aGNrdmNsdWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2MjQwNzEsImV4cCI6MjA5MzIwMDA3MX0.5OszIplRl1UEjLqElbfsek6R7y3nUWu1QVdiGRGrmtc';
+
+// Load Supabase JS
+const supaScript = document.createElement('script');
+supaScript.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+document.head.appendChild(supaScript);
+
+let supaClient = null;
+const _supaReady = new Promise((resolve) => {
+  supaScript.onload = () => { supaClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); resolve(); };
+  supaScript.onerror = () => { console.error('Failed to load Supabase JS'); resolve(); };
+});
+
+// ---- Constants ----
+const RATE_LIMIT_MAX = 5;                    // submissions per RATE_LIMIT_WINDOW_MS per browser
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const CAPTCHA_THRESHOLD = 3;                 // require captcha on 3rd+ submission within window
+
+// ---- URL parsing ----
+// Supports two URL forms:
+//   1. /refer/{partner-code}        (preferred, requires URL rewrite at host)
+//   2. /refer.html?p={partner-code}  (fallback for plain static hosting)
+function _readPartnerCode() {
+  // Path-based
+  const parts = window.location.pathname.split('/').filter(Boolean);
+  // Take the segment after 'refer' (if present), e.g. /refer/sarah-lopez → 'sarah-lopez'
+  const referIdx = parts.indexOf('refer');
+  if (referIdx >= 0 && parts[referIdx + 1]) {
+    return decodeURIComponent(parts[referIdx + 1]).toLowerCase();
+  }
+  // Query-string fallback
+  const qs = new URLSearchParams(window.location.search);
+  const q = qs.get('p') || qs.get('partner') || qs.get('ref');
+  if (q) return q.toLowerCase();
+  return null;
+}
+
+// ---- State switching ----
+function _showState(id) {
+  ['loadingState','invalidState','successState','rateLimitedState','formState'].forEach(s => {
+    document.getElementById(s).classList.toggle('show', s === id);
+  });
+}
+
+// ---- Rate limiting (localStorage) ----
+// Per-browser, not per-IP — true IP rate-limiting would need a server-side
+// rate limiter (e.g. an Edge Function or PostgREST plugin). For Phase 7,
+// the localStorage soft-limit is the first line plus the honeypot. Production
+// captchas (Cloudflare Turnstile / hCaptcha) would replace the math-question
+// fallback below. See PHASE_7_README.
+const LS_RATE_KEY = 'aiaura:refer:submits';
+
+function _readRecentSubmits() {
+  try {
+    const raw = localStorage.getItem(LS_RATE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    const cutoff = Date.now() - RATE_LIMIT_WINDOW_MS;
+    return arr.filter(ts => ts > cutoff);
+  } catch(e) { return []; }
+}
+
+function _recordSubmit() {
+  try {
+    const arr = _readRecentSubmits();
+    arr.push(Date.now());
+    localStorage.setItem(LS_RATE_KEY, JSON.stringify(arr));
+  } catch(e) {}
+}
+
+// ---- Captcha (math problem) ----
+// Production replacement: drop in Cloudflare Turnstile or hCaptcha widget.
+let _captchaAnswer = null;
+function _setupCaptcha() {
+  const a = Math.floor(Math.random() * 7) + 2;
+  const b = Math.floor(Math.random() * 7) + 2;
+  _captchaAnswer = a + b;
+  document.getElementById('captchaQ').textContent = `Quick check: what is ${a} + ${b}?`;
+  document.getElementById('captchaWrap').style.display = '';
+}
+
+function _captchaPasses() {
+  if (!_captchaAnswer) return true;
+  const v = parseInt((document.getElementById('captchaA').value || '').trim(), 10);
+  return v === _captchaAnswer;
+}
+
+// ---- Form validation ----
+function _showFieldError(field, msg) {
+  const el = document.getElementById('err_' + field);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+}
+
+function _clearFieldErrors() {
+  ['name','phone','email'].forEach(f => _showFieldError(f, ''));
+  const ge = document.getElementById('globalErr');
+  ge.textContent = ''; ge.style.display = 'none';
+}
+
+function _showGlobalErr(msg) {
+  const ge = document.getElementById('globalErr');
+  ge.textContent = msg;
+  ge.style.display = 'block';
+}
+
+function _validateForm(data) {
+  let ok = true;
+  if (!data.full_name || data.full_name.length < 2) {
+    _showFieldError('name', 'Please enter your name'); ok = false;
+  }
+  if (!data.phone || data.phone.length < 6) {
+    _showFieldError('phone', 'Please enter your phone'); ok = false;
+  }
+  if (!data.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    _showFieldError('email', 'Please enter a valid email'); ok = false;
+  }
+  return ok;
+}
+
+// ---- Main init ----
+let _partner = null;
+let _partnerCode = null;
+
+async function _init() {
+  await _supaReady;
+  if (!supaClient) {
+    _showState('invalidState');
+    return;
+  }
+
+  _partnerCode = _readPartnerCode();
+  if (!_partnerCode) {
+    _showState('invalidState');
+    return;
+  }
+
+  // Look up the partner. Function returns NULL (or empty result) for
+  // nonexistent OR deactivated partners — we don't distinguish either way.
+  try {
+    const { data, error } = await supaClient.rpc('get_partner_by_referral_code', {
+      p_code: _partnerCode
+    });
+    if (error) {
+      console.warn('Partner lookup error:', error.message);
+      _showState('invalidState');
+      return;
+    }
+    // RPC may return a single row or an array depending on definition.
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row || !row.id) {
+      _showState('invalidState');
+      return;
+    }
+    _partner = row;
+  } catch(e) {
+    console.warn('Partner lookup threw:', e);
+    _showState('invalidState');
+    return;
+  }
+
+  // Decide whether to require captcha for this session
+  const recent = _readRecentSubmits();
+  if (recent.length >= RATE_LIMIT_MAX) {
+    _showState('rateLimitedState');
+    return;
+  }
+  if (recent.length >= CAPTCHA_THRESHOLD - 1) {  // captcha kicks in on 3rd+
+    _setupCaptcha();
+  }
+
+  // Render the form with the partner's name
+  const firstName = _partner.first_name || (_partner.name || '').split(' ')[0] || 'A friend';
+  document.getElementById('heroTitle').textContent = `Hi! ${_escape(firstName)} sent you here`;
+  _showState('formState');
+
+  document.getElementById('referForm').addEventListener('submit', _onSubmit);
+}
+
+function _escape(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  })[c]);
+}
+
+async function _onSubmit(e) {
+  e.preventDefault();
+  _clearFieldErrors();
+
+  // Honeypot check — if filled, silently succeed (don't tip off the bot).
+  // We also count it as a submission so a persistent bot trips the localStorage
+  // rate-limit and hits the "rateLimitedState" screen on subsequent attempts.
+  const honeypot = document.getElementById('hp_website').value;
+  if (honeypot) {
+    _recordSubmit();
+    _showState('successState');
+    return;
+  }
+
+  // Captcha (if shown)
+  if (!_captchaPasses()) {
+    _showGlobalErr('Captcha answer is incorrect. Please try again.');
+    return;
+  }
+
+  // Collect fields
+  const data = {
+    full_name:    document.getElementById('f_name').value.trim(),
+    phone:        document.getElementById('f_phone').value.trim(),
+    email:        document.getElementById('f_email').value.trim().toLowerCase(),
+    city:         document.getElementById('f_city').value.trim() || null,
+    looking_for:  document.getElementById('f_looking').value.trim() || null,
+    headache:     document.getElementById('f_headache').value.trim() || null,
+    promo_code:   document.getElementById('f_promo').value.trim().toUpperCase() || null
+  };
+
+  if (!_validateForm(data)) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    const { data: result, error } = await supaClient.rpc('submit_referral_lead', {
+      p_partner_code:  _partnerCode,
+      p_full_name:     data.full_name,
+      p_phone:         data.phone,
+      p_email:         data.email,
+      p_city:          data.city,
+      p_looking_for:   data.looking_for,
+      p_headache:      data.headache,
+      p_promo_code:    data.promo_code
+    });
+    if (error) {
+      console.warn('submit_referral_lead error:', error.message);
+      _showGlobalErr('Something went wrong. Please try again in a moment.');
+      btn.disabled = false;
+      btn.textContent = 'Send my details';
+      return;
+    }
+
+    // Record this submission for rate limiting regardless of dedup outcome —
+    // we always show success to avoid leaking lead-existence to spammers.
+    _recordSubmit();
+    _showState('successState');
+  } catch(e) {
+    console.warn('submit_referral_lead threw:', e);
+    _showGlobalErr('Something went wrong. Please try again in a moment.');
+    btn.disabled = false;
+    btn.textContent = 'Send my details';
+  }
+}
+
+window.addEventListener('DOMContentLoaded', _init);
+</script>
+</body>
+</html>
