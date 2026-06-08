@@ -1,0 +1,18 @@
+{
+  "rewrites": [
+    { "source": "/refer", "destination": "/refer.html" },
+    { "source": "/refer/:code", "destination": "/refer.html?p=:code" },
+    { "source": "/apply", "destination": "/apply.html" },
+    { "source": "/apply-partner", "destination": "/apply.html" },
+    { "source": "/portal", "destination": "/portal.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+      ]
+    }
+  ]
+}
