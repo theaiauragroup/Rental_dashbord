@@ -960,16 +960,10 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 }
 .toast { animation: toastIn var(--t-slow) var(--ease-spring); }
 /* View content cross-fade. When user switches Today → Inbox → List → Kanban etc.,
-   #viewContent.innerHTML is replaced. The new direct children get a brief fade-up,
-   so the swap feels smooth rather than instant. Targeted slot re-renders inside
-   modals or panels are NOT affected since they don't sit directly under #viewContent. */
-#viewContent > * {
-  animation: viewContentFadeIn var(--t-medium) var(--ease-out);
-}
-@keyframes viewContentFadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+   #viewContent.innerHTML is replaced. Removed the fade-in animation that was
+   causing content to flicker/blink on every render. The instant swap is preferable
+   to repeated animations. Targeted slot re-renders inside modals or panels are
+   NOT affected since they don't sit directly under #viewContent. */
 /* Step card list (the follow-up plan workspace) — when channel filter changes
    or plan re-renders, give the new step cards a subtle stagger-free fade. */
 .fup-workflow-card .step-card {
