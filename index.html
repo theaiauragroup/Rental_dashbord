@@ -25384,7 +25384,9 @@ function renderUsersTab() {
     <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0;">
       ${subTabs.map(t => `
         <button onclick="window._userMgmtSubTab='${t.id}'; renderSettings();"
-          style="padding:10px 14px;background:none;border:none;border-bottom:2px solid ${sub === t.id ? 'var(--accent)' : 'transparent'};color:${sub === t.id ? 'var(--accent)' : 'var(--text-dim)'};font-weight:${sub === t.id ? '700' : '600'};font-size:13px;cursor:pointer;font-family:inherit;">
+          style="padding:10px 14px;background:none;border:none;border-bottom:2px solid ${sub === t.id ? 'var(--accent)' : 'transparent'};color:${sub === t.id ? 'var(--accent)' : 'var(--text-dim)'};font-weight:${sub === t.id ? '700' : '600'};font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s ease;pointer-events:auto;"
+          onmouseover="this.style.color='var(--accent)';this.style.opacity='0.9';"
+          onmouseout="this.style.color='${sub === t.id ? 'var(--accent)' : 'var(--text-dim)'}';this.style.opacity='1';">
           ${t.label}
         </button>
       `).join('')}
