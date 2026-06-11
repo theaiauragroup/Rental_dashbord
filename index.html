@@ -24102,17 +24102,34 @@ function renderSettings() {
     { id: 'trash', label: `Trash (${state.trash.length})` },
     { id: 'debug', label: 'Self-Test' }
   ];
- document.getElementById('settingsModal').innerHTML = `
-  <div class="modal">
-   <div class="modal-header"><div><div class="modal-title">Settings</div></div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
-   <div class="modal-body">
-    <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
-    <div>${renderSettingsTab(tab)}</div>
-   </div>
-  </div>`;
+  
+  // Render settings async to handle pending invitations loading
+  (async function() {
+    const content = await renderSettingsTab(tab);
+    const settingsModal = document.getElementById('settingsModal');
+    if (settingsModal) {
+      settingsModal.innerHTML = `
+        <div class="modal">
+         <div class="modal-header"><div><div class="modal-title">Settings</div></div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
+         <div class="modal-body">
+          <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
+          <div>${content}</div>
+         </div>
+        </div>`;
+    }
+  })();
 }
 
-function renderSettingsTab(tab) {
+async function renderSettingsTab(tab) {
+  // Pre-load pending invitations if switching to Users tab
+  if (tab === 'users') {
+    try {
+      await _loadPendingInvitations();
+    } catch(e) {
+      console.warn('Failed to pre-load pending invitations:', e);
+    }
+  }
+  
   if (tab === 'profile') return renderProfileTab();
   if (tab === 'users') return renderUsersTab();
   if (tab === 'targets') return renderTargetsTab();
@@ -25206,6 +25223,21 @@ async function _reloadUsers() {
 }
 
 // Fetch pending invitations (Owner + Manager scoped via RLS).
+// ========== USER MANAGEMENT TAB SWITCHER ==========
+// Handles switching between Active/Pending/Deactivated user tabs
+// Ensures pending invitations are loaded before rendering
+async function _switchUserMgmtTab(tabId) {
+  window._userMgmtSubTab = tabId;
+  
+  // Load pending invitations if switching to that tab
+  if (tabId === 'pending') {
+    await _loadPendingInvitations();
+  }
+  
+  // Re-render the Users tab with new content
+  renderSettings();
+}
+
 async function _loadPendingInvitations() {
   try {
     const { data, error } = await supaClient
@@ -25388,7 +25420,7 @@ function renderUsersTab() {
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
       <div style="display:inline-flex;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;">
         ${subTabs.map(t => `
-          <button onclick="window._userMgmtSubTab='${t.id}'; if ('${t.id}' === 'pending') { _loadPendingInvitations().then(renderSettings); } else { renderSettings(); }"
+          <button onclick="_switchUserMgmtTab('${t.id}')"
             style="padding:7px 14px;background:${sub === t.id ? 'white' : 'transparent'};border:none;border-radius:6px;color:${sub === t.id ? 'var(--accent)' : 'var(--text)'};font-weight:${sub === t.id ? '700' : '500'};font-size:12.5px;cursor:pointer;font-family:inherit;transition:background 0.15s ease, color 0.15s ease;box-shadow:${sub === t.id ? '0 1px 2px rgba(0,0,0,0.06)' : 'none'};white-space:nowrap;"
             onmouseover="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='rgba(0,0,0,0.04)'; }"
             onmouseout="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='transparent'; }">
