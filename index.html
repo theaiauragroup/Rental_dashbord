@@ -19517,8 +19517,12 @@ function generateNotifications() {
   }
   const existingMap = {};
  state.notifications.forEach(n =>existingMap[n.id] = n);
+ const prevSig = JSON.stringify((state.notifications || []).map(n => [n.id, n.read]).sort());
  state.notifications = newNotifs.map(n =>existingMap[n.id] ? { ...n, read: existingMap[n.id].read } : n);
- saveNotifs();
+ const nextSig = JSON.stringify(state.notifications.map(n => [n.id, n.read]).sort());
+ // Only persist if the notification set or read-state actually changed.
+ // Prevents the realtime feedback loop that caused the leads table to blink.
+ if (prevSig !== nextSig) saveNotifs();
  document.getElementById('notifBadge').style.display = state.notifications.some(n => !n.read) ? 'block' : 'none';
  if ('Notification' in window && Notification.permission === 'granted') {
   for (const n of state.notifications) {
@@ -25381,17 +25385,19 @@ function renderUsersTab() {
       Manage every user in the CRM and Partner Portal. Invite new team members, change roles and managers, and deactivate accounts when people leave. Every change is written to the audit log.
     </div>
     ${passphraseWarning}
-    <div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0;">
-      ${subTabs.map(t => `
-        <button onclick="window._userMgmtSubTab='${t.id}'; renderUsersTab();"
-          style="padding:10px 14px;background:none;border:none;border-bottom:2px solid ${sub === t.id ? 'var(--accent)' : 'transparent'};color:${sub === t.id ? 'var(--accent)' : 'var(--text-dim)'};font-weight:${sub === t.id ? '700' : '600'};font-size:13px;cursor:pointer;font-family:inherit;transition:all 0.2s ease;pointer-events:auto;"
-          onmouseover="this.style.color='var(--accent)';this.style.opacity='0.9';"
-          onmouseout="this.style.color='${sub === t.id ? 'var(--accent)' : 'var(--text-dim)'}';this.style.opacity='1';">
-          ${t.label}
-        </button>
-      `).join('')}
+    <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
+      <div style="display:inline-flex;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;">
+        ${subTabs.map(t => `
+          <button onclick="window._userMgmtSubTab='${t.id}'; if ('${t.id}' === 'pending') { _loadPendingInvitations().then(renderSettings); } else { renderSettings(); }"
+            style="padding:7px 14px;background:${sub === t.id ? 'white' : 'transparent'};border:none;border-radius:6px;color:${sub === t.id ? 'var(--accent)' : 'var(--text)'};font-weight:${sub === t.id ? '700' : '500'};font-size:12.5px;cursor:pointer;font-family:inherit;transition:background 0.15s ease, color 0.15s ease;box-shadow:${sub === t.id ? '0 1px 2px rgba(0,0,0,0.06)' : 'none'};white-space:nowrap;"
+            onmouseover="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='rgba(0,0,0,0.04)'; }"
+            onmouseout="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='transparent'; }">
+            ${t.label}
+          </button>
+        `).join('')}
+      </div>
       <div style="flex:1;"></div>
-      <button class="btn btn-sm btn-primary" onclick="openInviteUserModal()" style="margin-bottom:6px;">
+      <button class="btn btn-sm btn-primary" onclick="openInviteUserModal()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><path d="M12 5v14M5 12h14"/></svg>
         Invite user
       </button>
@@ -25520,20 +25526,20 @@ function _renderDeactivatedUsersList(users) {
   `;
 }
 
-// ---- Hook: refresh pending invitations when entering the Settings modal ----
-// Wraps the existing renderSettings so opening it triggers a fetch on first paint.
-// Re-bound on every renderSettings call but the actual fetch only runs once per session
-// unless explicitly refreshed.
-let _phase5SettingsInited = false;
+// ---- Hook: refresh pending invitations whenever the Users tab is rendered ----
+// Wraps renderSettings so every paint of the Users tab triggers a fresh fetch.
+// A re-entry guard prevents the post-load re-render from looping.
+let _phase5LoadInFlight = false;
 const _origRenderSettings = window.renderSettings || renderSettings;
 window.renderSettings = function() {
   _origRenderSettings();
-  if (!_phase5SettingsInited && _isOwnerLocal()) {
-    _phase5SettingsInited = true;
+  const onUsersTab = (window._settingsTab || 'profile') === 'users';
+  if (onUsersTab && _isOwnerLocal() && !_phase5LoadInFlight) {
+    _phase5LoadInFlight = true;
     _loadPendingInvitations().then(() => {
-      // Re-render if we're still on the Users tab
+      _phase5LoadInFlight = false;
       if ((window._settingsTab || 'profile') === 'users') _origRenderSettings();
-    });
+    }).catch(() => { _phase5LoadInFlight = false; });
   }
 };
 
@@ -31854,7 +31860,12 @@ function setupRealtimeSync() {
   // in-memory migration rebuilds people[] from those leads. We additionally
   // refresh plan steps directly when those rows change so partial updates
   // (one step sent on another device) come through quickly.
-  const tables = ['leads', 'tasks', 'notifications', 'handoff_notes', 'snoozed_leads', 'people', 'plans', 'plan_steps'];
+  // NOTE: 'notifications' deliberately excluded — notifications are derived locally
+  // from leads/tasks/handoff_notes by generateNotifications(). Subscribing to it
+  // created a feedback loop: realtime→loadAll→renderAll→generateNotifications→
+  // saveNotifs→notifications-table-write→realtime fires again. That loop is what
+  // caused the leads table to constantly blink (appear/disappear/appear).
+  const tables = ['leads', 'tasks', 'handoff_notes', 'snoozed_leads', 'people', 'plans', 'plan_steps'];
   tables.forEach(table => {
     supaClient
       .channel('sync:' + table)
