@@ -31852,6 +31852,33 @@ async function logoutCRM() {
 }
 
 // ---- Real-time sync ----
+// ============ REALTIME SYNC WITH DEBOUNCING FIX ============
+// Phase 7 HOTFIX — Debounce renderAll() to prevent blinking cascade
+// Previously: rapid database changes caused renderAll() to fire repeatedly,
+// making the UI blink (data flash). Now we debounce render calls so multiple
+// changes in quick succession (within 200ms) only trigger ONE render cycle.
+let _realtimeRenderTimer = null;
+let _pendingRealtimeUpdate = false;
+
+function _triggerDebouncedRender() {
+  if (_realtimeRenderTimer) clearTimeout(_realtimeRenderTimer);
+  if (_pendingRealtimeUpdate) return; // Already scheduled
+  
+  _pendingRealtimeUpdate = true;
+  _realtimeRenderTimer = setTimeout(function() {
+    try {
+      renderStats();
+      renderOutcomeWidgets();
+      renderContent();  // Light re-render, not full renderAll
+      if (typeof _updateTodayTabBadge === 'function') _updateTodayTabBadge();
+      if (typeof _updateInboxTabBadge === 'function') _updateInboxTabBadge();
+    } catch(e) {
+      console.error('Debounced render error:', e);
+    }
+    _pendingRealtimeUpdate = false;
+  }, 200);  // 200ms debounce window
+}
+
 function setupRealtimeSync() {
   if (!supaClient) return;
   // Phase 5: extend sync to follow-up plan tables.
@@ -31865,6 +31892,7 @@ function setupRealtimeSync() {
   // created a feedback loop: realtime→loadAll→renderAll→generateNotifications→
   // saveNotifs→notifications-table-write→realtime fires again. That loop is what
   // caused the leads table to constantly blink (appear/disappear/appear).
+  // PHASE 7 FIX: Added debouncing to prevent same cascade with other tables.
   const tables = ['leads', 'tasks', 'handoff_notes', 'snoozed_leads', 'people', 'plans', 'plan_steps'];
   tables.forEach(table => {
     supaClient
@@ -31877,16 +31905,27 @@ function setupRealtimeSync() {
           _updateTodayTabBadge();
           return;
         }
-        await loadAll();
+        
+        // Load fresh data from server
+        try {
+          await loadAll();
+        } catch(e) {
+          console.error('loadAll error in realtime sync:', e);
+          return;
+        }
+        
         // Re-attach plans/steps to people on each lead (they live in lead.people[].plans now)
         // Plan tables themselves are written but lead.people serialization is what we render from.
         // Since we save the full lead JSON whenever any step changes (see markStepSent), reloading
         // leads picks up the change automatically.
-        renderAll();
+        
+        // PHASE 7 FIX: Use debounced render instead of immediate renderAll()
+        // This prevents the blinking cascade when multiple changes fire in quick succession
+        _triggerDebouncedRender();
       })
       .subscribe();
   });
-  console.log('✓ AutoCRM: Real-time sync active on', tables.join(', '));
+  console.log('✓ AutoCRM: Real-time sync active on', tables.join(', '), '(with anti-blink debounce)');
 }
 
 // ---- saveDailyReport: upsert directly into daily_reports ----
