@@ -24103,33 +24103,20 @@ function renderSettings() {
     { id: 'debug', label: 'Self-Test' }
   ];
   
-  // Render settings async to handle pending invitations loading
-  (async function() {
-    const content = await renderSettingsTab(tab);
-    const settingsModal = document.getElementById('settingsModal');
-    if (settingsModal) {
-      settingsModal.innerHTML = `
-        <div class="modal">
-         <div class="modal-header"><div><div class="modal-title">Settings</div></div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
-         <div class="modal-body">
-          <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
-          <div>${content}</div>
-         </div>
-        </div>`;
-    }
-  })();
+  // Render synchronously - data should already be loaded by _switchUserMgmtTab
+  const content = renderSettingsTabSync(tab);
+ document.getElementById('settingsModal').innerHTML = `
+  <div class="modal">
+   <div class="modal-header"><div><div class="modal-title">Settings</div></div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
+   <div class="modal-body">
+    <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
+    <div>${content}</div>
+   </div>
+  </div>`;
 }
 
-async function renderSettingsTab(tab) {
-  // Pre-load pending invitations if switching to Users tab
-  if (tab === 'users') {
-    try {
-      await _loadPendingInvitations();
-    } catch(e) {
-      console.warn('Failed to pre-load pending invitations:', e);
-    }
-  }
-  
+// Synchronous version - called when rendering (data already loaded)
+function renderSettingsTabSync(tab) {
   if (tab === 'profile') return renderProfileTab();
   if (tab === 'users') return renderUsersTab();
   if (tab === 'targets') return renderTargetsTab();
@@ -24141,9 +24128,23 @@ async function renderSettingsTab(tab) {
   if (tab === 'data') return renderDataTab();
   if (tab === 'trash') return renderTrashTab();
   if (tab === 'debug') return renderDebugTab();
-  if (tab === 'reports') return renderReportsTab();
   if (tab === 'access') return renderAccessTab();
   return '';
+}
+
+// Async version - called for pre-loading data before rendering
+async function renderSettingsTab(tab) {
+  // Pre-load pending invitations if switching to Users tab
+  if (tab === 'users') {
+    try {
+      await _loadPendingInvitations();
+    } catch(e) {
+      console.warn('Failed to pre-load pending invitations:', e);
+    }
+  }
+  
+  // Return the HTML content (synchronously after data is loaded)
+  return renderSettingsTabSync(tab);
 }
 
 // =============================================================
@@ -25231,10 +25232,14 @@ async function _switchUserMgmtTab(tabId) {
   
   // Load pending invitations if switching to that tab
   if (tabId === 'pending') {
-    await _loadPendingInvitations();
+    try {
+      await _loadPendingInvitations();
+    } catch(e) {
+      console.error('Failed to load pending invitations:', e);
+    }
   }
   
-  // Re-render the Users tab with new content
+  // Re-render the Users tab with new content (data is now loaded)
   renderSettings();
 }
 
