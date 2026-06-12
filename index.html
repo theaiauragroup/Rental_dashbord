@@ -31687,8 +31687,17 @@ async function _renderInviteAcceptScreen(token) {
     if (data.session) {
       currentSession = data.session;
       state.currentUserId = data.user.id;
-      try { await supaClient.from('users').update({ name }).eq('id', data.user.id); }
-      catch(e) { console.warn('Failed to update name:', e); }
+      try {
+        await supaClient.from('users').upsert({
+          id: data.user.id,
+          name,
+          email: inv.email,
+          role: inv.role,
+          deleted: false,
+          created_at: Date.now(),
+          updated_at: Date.now()
+        }, { onConflict: 'id' });
+      } catch(e) { console.warn('Failed to upsert profile:', e); }
 
       const profile = await _fetchAuthenticatedProfile();
       if (profile && _destinationForRole(profile.role) === 'portal') {
