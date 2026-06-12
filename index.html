@@ -25512,7 +25512,7 @@ function renderUsersTab() {
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
       <div style="display:inline-flex;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;">
         ${subTabs.map(t => `
-          <button onclick="window._userMgmtSubTab='${t.id}'; if ('${t.id}' === 'pending') { _loadPendingInvitations().then(renderSettings); } else { renderSettings(); }"
+          <button onclick="if ('${t.id}' === 'pending') { _loadPendingInvitations().then(() => _sv2Go('invitations')); } else if ('${t.id}' === 'deactivated') { _sv2Go('deactivated'); } else { _sv2Go('users'); }"
             style="padding:7px 14px;background:${sub === t.id ? 'white' : 'transparent'};border:none;border-radius:6px;color:${sub === t.id ? 'var(--accent)' : 'var(--text)'};font-weight:${sub === t.id ? '700' : '500'};font-size:12.5px;cursor:pointer;font-family:inherit;transition:background 0.15s ease, color 0.15s ease;box-shadow:${sub === t.id ? '0 1px 2px rgba(0,0,0,0.06)' : 'none'};white-space:nowrap;"
             onmouseover="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='rgba(0,0,0,0.04)'; }"
             onmouseout="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='transparent'; }">
