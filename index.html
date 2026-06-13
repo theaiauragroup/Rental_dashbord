@@ -698,6 +698,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
   transform: scale(1) translateY(0);
   opacity: 1;
 }
+/* Account/password modal — centered vertically instead of top-aligned */
+#accountModal { align-items: center; }
 /* Issue 4.2 — Pause modal: fix radio overflow bug + tightened layout.
    ROOT CAUSE of the radio-labels-off-screen bug was that .form-field input
    sets `width: 100%` (intended for text inputs/selects/textareas). That rule
@@ -6427,7 +6429,7 @@ let activeTimerInterval = null, displayTimerInterval = null;
 
 async function loadAll() {
  try { const r = await window.storage.get('users'); state.users = r ? JSON.parse(r.value) : []; } catch(e) { state.users = []; }
- try { const r = await window.storage.get('currentUser'); state.currentUserId = r ? r.value : null; } catch(e) {}
+ try { const r = await window.storage.get('currentUser'); if (r) state.currentUserId = r.value; } catch(e) {}
  try { const r = await window.storage.get('settings'); if (r) state.settings = { ...state.settings, ...JSON.parse(r.value) }; } catch(e) {}
  try {
   const rl = await window.storage.list('lead:');
