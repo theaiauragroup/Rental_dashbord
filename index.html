@@ -3,6 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<!-- Always load the freshest app + live data — never serve a stale cached page. -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>Aiaura Fleets — CRM</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,7 +207,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .btn-danger:hover { background: var(--hot); border-color: var(--hot); color: white; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
 button.settings-tab-btn { font-weight: 700 !important; font-size: 13px; padding: 8px 16px; }
-main.standalone-mode > .timer-cards,
+main.standalone-mode > .stats-row,
+main.standalone-mode > .timers-row,
 main.standalone-mode > .briefing,
 main.standalone-mode > .view-bar,
 main.standalone-mode > .filter-bar { display: none; }
@@ -554,6 +559,12 @@ main.standalone-mode > .filter-bar { display: none; }
     background-image var(--t-medium) var(--ease-snap);
 }
 .kanban-card.dragging { opacity: 0.4; }
+/* Smooth landing flash when a card is dropped into a new column (optimistic move). */
+.kanban-card.just-moved { animation: kanbanLand 550ms ease-out; }
+@keyframes kanbanLand {
+  0%   { background: rgba(34,197,94,0.20); box-shadow: 0 4px 14px rgba(34,197,94,0.28); transform: scale(1.015); }
+  100% { background: var(--bg-card); box-shadow: none; transform: none; }
+}
 .kanban-col.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; background: rgba(34,197,94,0.05); }
 .kanban-card:active { transform: scale(0.97); transition-duration: var(--t-instant); }
 .kanban-card:hover { border-color: rgba(34, 197, 94, 0.5); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1); background: rgba(220, 252, 231, 0.25); }
@@ -3058,9 +3069,9 @@ textarea.plan-prompt-box:focus { outline: none; border-color: var(--accent); }
 .sv2-body { display: flex; min-height: 440px; max-height: 72vh; }
 .sv2-side { width: 200px; flex-shrink: 0; overflow-y: auto; border-right: 1px solid var(--border); padding: 10px 8px; background: var(--bg-soft); }
 .sv2-grouplabel { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); padding: 12px 10px 4px; }
-.sv2-item { display: flex; align-items: center; gap: 8px; padding: 0 10px; min-height: 44px; font-size: 13px; border-radius: 8px; cursor: pointer; color: var(--text-dim); border: none; background: transparent; width: 100%; text-align: left; }
+.sv2-item { display: flex; align-items: center; gap: 8px; padding: 0 10px; min-height: 44px; font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer; color: var(--text); border: none; background: transparent; width: 100%; text-align: left; }
 .sv2-item:hover { background: var(--bg-hover); }
-.sv2-item.active { background: var(--bg-card); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+.sv2-item.active { background: var(--bg-card); color: var(--text); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 .sv2-badge { margin-left: auto; font-size: 10px; padding: 1px 7px; border-radius: 9px; background: var(--accent-soft, #e8f3ec); color: var(--accent, #2c7a39); font-weight: 700; }
 .sv2-content { flex: 1; overflow-y: auto; padding: 18px 22px; min-width: 0; }
 .sv2-pillbar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -3099,9 +3110,9 @@ textarea.plan-prompt-box:focus { outline: none; border-color: var(--accent); }
 #sv3Side .sv3-brand { display: flex; align-items: center; gap: 8px; padding: 4px 10px 12px; font-weight: 700; font-size: 14px; color: var(--text); }
 #sv3Side .sv3-collapse { margin-left: auto; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 15px; padding: 4px 8px; border-radius: 6px; }
 #sv3Side .sv3-collapse:hover { background: var(--bg-hover); }
-#sv3Side button.view-tab { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 44px; padding: 0 10px; border: none; background: transparent; color: var(--text-dim); font-size: 13px; border-radius: 8px; cursor: pointer; text-align: left; margin: 0 0 1px 0; }
+#sv3Side button.view-tab { display: flex; align-items: center; gap: 9px; width: 100%; min-height: 44px; padding: 0 10px; border: none; background: transparent; color: var(--text); font-size: 13px; font-weight: 700; border-radius: 8px; cursor: pointer; text-align: left; margin: 0 0 1px 0; }
 #sv3Side button.view-tab:hover { background: var(--bg-hover); }
-#sv3Side button.view-tab.active { background: var(--bg-card); color: var(--text); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+#sv3Side button.view-tab.active { background: var(--bg-card); color: var(--text); font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
 #sv3Side .sv3-group { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); padding: 12px 10px 4px; }
 #sv3Side .sv3-bottom { margin-top: auto; border-top: 1px solid var(--border); padding-top: 8px; }
 #sv3Side .sv3-badge { margin-left: auto; font-size: 10px; padding: 1px 7px; border-radius: 9px; background: var(--accent-soft); color: var(--accent); font-weight: 700; }
@@ -6830,7 +6841,11 @@ function _autoTransitionStage(lead) {
   if (sentCount >= 2) next = 'Nurturing';
   else if (sentCount === 1) next = 'Contacted';
   else next = 'New';
-  if (next !== lead.stage) {
+  // Only auto-PROMOTE forward based on messaging activity — never demote.
+  // A manual stage move (e.g. kanban drag New→Contacted on a lead with 0 sent
+  // messages) must be respected; otherwise this would reset it straight back to
+  // New on save and the card would snap back even though the toast said "Moved".
+  if (linearStages.indexOf(next) > linearStages.indexOf(lead.stage)) {
     lead.stage = next;
     // Silent — no toast. The on-screen stage chip refreshes through the normal rerender path.
   }
@@ -17072,6 +17087,18 @@ function refreshUserPill() {
 }
 
 function switchView(view) {
+ // [ACCESS-V1] Block navigation to a section the member isn't permitted to open.
+ // Scoped to users carrying an EXPLICIT permissions object, so every existing user
+ // (no overrides) is unaffected. Owner is always allowed via userCan().
+ try {
+   if (typeof _hasExplicitPermissions === 'function' && _hasExplicitPermissions()) {
+     const _permKey = { today:'dashboard', list:'leads', kanban:'kanban', tasks:'tasks', inbox:'inbox', commissions:'commissions', analytics:'analytics', reports:'reports', targets:'targets' }[view];
+     if (_permKey && !userCan(_permKey)) {
+       // Redirect to the first section they ARE allowed (dashboard → leads fallbacks).
+       view = userCan('dashboard') ? 'today' : (userCan('leads') ? 'list' : view);
+     }
+   }
+ } catch(e) {}
  state.view = view;
  document.querySelectorAll('.view-tab').forEach(t =>t.classList.toggle('active', t.dataset.view === view));
  renderContent();
@@ -18646,7 +18673,7 @@ function renderListView() {
    <button class="btn btn-primary" onclick="openAddLeadModal()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>Add Your First Lead</button>
   </div></div>`;
  if (list.length === 0) return `<div class="list-wrap"><div class="empty-state"><div class="empty-title">No matching leads</div><div class="empty-sub">Try clearing your filters or search</div></div></div>`;
- return `<div class="list-wrap"><div class="list-scroll"><table class="lead-table"><thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Stage</th><th>Temp</th><th>Value</th><th>Owner</th><th>Contact</th><th>Follow-up</th><th style="text-align:right;">Actions</th></tr></thead><tbody>${list.map(l =>leadRow(l)).join('')}</tbody></table></div></div>`;
+ return `<div class="list-wrap"><div class="list-scroll"><table class="lead-table"><thead><tr><th>Name</th><th>Type</th><th>Location</th><th>Stage</th><th>Temp</th><th>Value</th><th>Person</th><th>Contact</th><th>Follow-up</th><th style="text-align:right;">Actions</th></tr></thead><tbody>${list.map(l =>leadRow(l)).join('')}</tbody></table></div></div>`;
 }
 
 function leadRow(l) {
@@ -19254,12 +19281,12 @@ function renderKanbanView() {
       const unreadBadge = unread > 0
         ? '<span title="' + unread + ' unread repl' + (unread === 1 ? 'y' : 'ies') + '" style="position: absolute; top: 6px; right: 6px; min-width: 18px; height: 18px; padding: 0 6px; background: var(--accent); color: white; border-radius: 999px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 0 0 2px white;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + (unread > 99 ? '99+' : unread) + '</span>'
         : '';
-      return '<div class="kanban-card" draggable="true" ondragstart="event.dataTransfer.setData(\'text/plain\',\'' + l.id + '\');this.classList.add(\'dragging\')" ondragend="this.classList.remove(\'dragging\')" onclick="openLeadDetail(\'' + l.id + '\')" style="position: relative;">'
+      return '<div class="kanban-card" draggable="true" data-lead-id="' + l.id + '" ondragstart="event.dataTransfer.setData(\'text/plain\',\'' + l.id + '\');this.classList.add(\'dragging\')" ondragend="this.classList.remove(\'dragging\')" onclick="openLeadDetail(\'' + l.id + '\')" style="position: relative;">'
         + unreadBadge
         + '<div class="kanban-card-top"><div><div class="kanban-card-name">' + escapeHtml(l.name) + ' ' + (typeof leadPendingRing === 'function' ? leadPendingRing(l) : '') + '</div><div class="kanban-card-sub">' + escapeHtml(l.city || '') + (l.state ? ', ' + l.state : '') + '</div></div>' + (l.temp ? '<span class="pill ' + l.temp + '">' + l.temp[0].toUpperCase() + '</span>' : '') + '</div>'
         + '<div class="kanban-card-meta"><span class="stage-pill">' + (l.type === 'business' ? ({rental:'Rental',dealership:'Dealer',brokerage:'Broker'}[l.bizType] || '') : l.type === 'partner' ? ({influencer:'Influencer',broker:'Broker',brand:'Brand'}[l.bizType] || 'Partner') : 'Owner') + '</span><span class="kanban-card-value">' + fmtMoney(l.value) + '</span></div>'
         + '</div>';
-    }).join('') || '<div style="padding: 20px 4px; text-align: center; color: var(--text-faint); font-size: 11px;">empty</div>'}
+    }).join('') || '<div class="kanban-empty" style="padding: 20px 4px; text-align: center; color: var(--text-faint); font-size: 11px;">empty</div>'}
    </div>`;
   }).join('')}</div>`;
 }
@@ -19269,7 +19296,54 @@ function handleKanbanDrop(e, stage) {
   e.currentTarget.classList.remove('drag-over');
   const leadId = e.dataTransfer.getData('text/plain');
   if (!leadId) return;
-  changeLeadStage(leadId, stage);
+  const lead = (state.leads || []).find(l => l.id === leadId);
+  if (!lead || lead.stage === stage) return;
+  // Won/Lost need their reason modals first — defer entirely to changeLeadStage
+  // (it opens the modal and re-renders once the user confirms).
+  if (stage === 'Won' || stage === 'Lost') {
+    changeLeadStage(leadId, stage, { fromKanban: true });
+    return;
+  }
+  // INSTANT optimistic move: relocate the card's DOM node into the target column
+  // right now, so the board updates the moment you let go — no full re-render.
+  _kanbanOptimisticMove(leadId, e.currentTarget);
+  // Persist in the background. skipRender avoids the heavy renderAll() so there's
+  // no flicker; the card is already where it belongs.
+  changeLeadStage(leadId, stage, { fromKanban: true, skipRender: true });
+}
+
+// Move a kanban card element into a target column immediately and fix up the
+// "empty" placeholders + count badges, all without re-rendering the board.
+function _kanbanOptimisticMove(leadId, targetCol) {
+  try {
+    const card = document.querySelector('.kanban-card[data-lead-id="' + leadId + '"]');
+    if (!card || !targetCol) return;
+    const sourceCol = card.closest('.kanban-col');
+    const tEmpty = targetCol.querySelector('.kanban-empty');
+    if (tEmpty) tEmpty.remove();
+    targetCol.appendChild(card);
+    // Subtle landing highlight for a smooth feel.
+    card.classList.add('just-moved');
+    setTimeout(function() { card.classList.remove('just-moved'); }, 600);
+    // Restore the source column's "empty" placeholder if it has no cards left.
+    if (sourceCol && sourceCol !== targetCol && !sourceCol.querySelector('.kanban-card')) {
+      const ph = document.createElement('div');
+      ph.className = 'kanban-empty';
+      ph.style.cssText = 'padding: 20px 4px; text-align: center; color: var(--text-faint); font-size: 11px;';
+      ph.textContent = 'empty';
+      sourceCol.appendChild(ph);
+    }
+    _kanbanRefreshCounts();
+  } catch(e) { console.warn('[kanban optimistic move]', e); }
+}
+
+// Recompute each column's header count from the cards currently in the DOM.
+function _kanbanRefreshCounts() {
+  document.querySelectorAll('.kanban-col').forEach(function(col) {
+    const n = col.querySelectorAll('.kanban-card').length;
+    const badge = col.querySelector('.kanban-stage-count');
+    if (badge) badge.textContent = n;
+  });
 }
 
 function renderStats() {
@@ -23833,7 +23907,8 @@ function cancelLeadChanges() {
 }
 
 
-async function changeLeadStage(leadId, newStage) {
+async function changeLeadStage(leadId, newStage, opts) {
+  opts = opts || {};
   // Phase 6.5 A3 — Outcome modals must intercept BEFORE the edit-buffer check.
   // openLeadDetail auto-starts _leadEditBuffer on every open, so without this
   // pre-intercept the buffer swallows the stage change and the Won/Lost modals
@@ -23891,8 +23966,12 @@ async function changeLeadStage(leadId, newStage) {
   } else {
     showToast('Stage moved: ' + oldStage + ' to ' + newStage, 'success');
   }
-  openLeadDetail(leadId);
-  renderAll();
+  // Kanban drags move + persist silently (undo toast already shown). Other
+  // callers (e.g. list view) still open the detail modal as before.
+  if (!opts.fromKanban) openLeadDetail(leadId);
+  // skipRender: the kanban path already moved the card in the DOM optimistically,
+  // so we avoid the full renderAll() flicker. Everyone else re-renders as before.
+  if (!opts.skipRender) renderAll();
 }
 
 // Phase 6.5 post-audit Issue 6.8 — Render a 5-second undo toast after a stage move.
@@ -25212,6 +25291,70 @@ const PARTNER_ROLES = ['broker', 'influencer', 'brand'];
 const INTERNAL_ROLES = ['owner', 'manager', 'sales', 'broker'];
 const PORTAL_ROLES = ['influencer', 'brand'];
 
+// ============================================================
+// [2026-06-13 ACCESS-V1] Per-user granular access (additive overlay)
+// ------------------------------------------------------------
+// Owner can grant/restrict, at invite time, exactly what a member can see & do.
+// Stored in users.permissions (jsonb) — a {access_key: bool} map. When a user has
+// NO permissions object (every existing user), userCan() falls back to the role
+// default below, which is hand-tuned to reproduce the EXACT pre-existing behavior,
+// so this feature changes nothing until an Owner customizes an invite.
+// Owner is ALWAYS full-access and can never be restricted (prevents lockout).
+// ============================================================
+const ACCESS_KEYS = [
+  { key: 'dashboard',   label: 'Dashboard' },
+  { key: 'leads',       label: 'Leads' },
+  { key: 'kanban',      label: 'Kanban' },
+  { key: 'tasks',       label: 'Tasks' },
+  { key: 'inbox',       label: 'Inbox' },
+  { key: 'partners',    label: 'Partners' },
+  { key: 'commissions', label: 'Commissions' },
+  { key: 'analytics',   label: 'Analytics' },
+  { key: 'reports',     label: 'Reports' },
+  { key: 'targets',     label: 'Targets' },
+  { key: 'add_lead',    label: 'Add leads' }
+];
+// Defaults below MUST mirror current role behavior (see _sv3NavHtml's old isOM gate)
+// so users without an explicit permissions object behave identically to before.
+const ROLE_ACCESS_DEFAULTS = {
+  owner:      { dashboard:1, leads:1, kanban:1, tasks:1, inbox:1, partners:1, commissions:1, analytics:1, reports:1, targets:1, add_lead:1 },
+  manager:    { dashboard:1, leads:1, kanban:1, tasks:1, inbox:1, partners:1, commissions:1, analytics:1, reports:1, targets:1, add_lead:1 },
+  sales:      { dashboard:1, leads:1, kanban:1, tasks:1, inbox:1, partners:0, commissions:0, analytics:0, reports:0, targets:0, add_lead:1 },
+  broker:     { dashboard:1, leads:1, kanban:1, tasks:1, inbox:1, partners:0, commissions:0, analytics:0, reports:0, targets:0, add_lead:1 },
+  influencer: { dashboard:1, leads:1, kanban:0, tasks:0, inbox:0, partners:0, commissions:1, analytics:0, reports:0, targets:0, add_lead:0 },
+  brand:      { dashboard:1, leads:1, kanban:0, tasks:0, inbox:0, partners:0, commissions:1, analytics:0, reports:0, targets:0, add_lead:0 }
+};
+function _roleDefaultAccess(role, key) {
+  const d = ROLE_ACCESS_DEFAULTS[role] || ROLE_ACCESS_DEFAULTS.sales;
+  return !!d[key];
+}
+// Returns whether the CURRENT user is allowed the given access key.
+function userCan(key) {
+  let cu = null; try { cu = getCurrentUser(); } catch(e) {}
+  const role = cu ? cu.role : 'sales';
+  if (role === 'owner') return true;  // Owner is never restrictable
+  const perms = (cu && cu.permissions && typeof cu.permissions === 'object') ? cu.permissions : null;
+  if (perms && Object.prototype.hasOwnProperty.call(perms, key)) return !!perms[key];
+  return _roleDefaultAccess(role, key);
+}
+window.userCan = userCan;
+// True only when the current user carries an EXPLICIT permissions object. Used to
+// scope the harder navigation guard so default users are never affected.
+function _hasExplicitPermissions() {
+  let cu = null; try { cu = getCurrentUser(); } catch(e) {}
+  return !!(cu && cu.permissions && typeof cu.permissions === 'object');
+}
+// Hide/show access-gated chrome that lives in static HTML (the Add Lead buttons).
+function _applyAccessUI() {
+  try {
+    const canAdd = userCan('add_lead');
+    document.querySelectorAll('.header-add-lead, .mobile-add-lead').forEach(function(b) {
+      b.style.display = canAdd ? '' : 'none';
+    });
+  } catch(e) {}
+}
+window._applyAccessUI = _applyAccessUI;
+
 // ---- Permission helpers ----
 function _isOwnerLocal() {
   const u = getCurrentUser();
@@ -25804,6 +25947,10 @@ async function openInviteUserModal() {
             </div>
           </div>
         </div>
+        <div class="form-field" id="invAccessField" style="margin-bottom:14px;">
+          <label>Access <span style="color:var(--text-faint);font-weight:400;">— pre-set by role; tick / untick what this member can see &amp; do</span></label>
+          <div id="invAccessGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;margin-top:8px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg-soft);"></div>
+        </div>
         <div id="invErr" style="color:var(--hot);font-size:13px;margin-top:8px;display:none;"></div>
       </div>
       <div style="padding:14px 26px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;">
@@ -25826,6 +25973,10 @@ function _inviteRoleChanged() {
   document.getElementById('invScopeField').style.display   = showScope ? '' : 'none';
   document.getElementById('invPartnerFields').style.display = showPartner ? '' : 'none';
 
+  // [ACCESS-V1] Repaint the access checklist with this role's default access level
+  // every time the role changes, so the Owner starts from a sensible per-role baseline.
+  _renderInviteAccessGrid(role);
+
   // Auto-populate suggested codes for partner roles based on the entered name
   if (showPartner) {
     const nameEl = document.getElementById('invName');
@@ -25839,6 +25990,20 @@ function _inviteRoleChanged() {
     nameEl.oninput = updateCodes;
     updateCodes();
   }
+}
+
+// [ACCESS-V1] Fill the invite Access checklist with checkboxes, pre-checked to the
+// chosen role's default access level. Owner can freely tick/untick from there.
+function _renderInviteAccessGrid(role) {
+  const grid = document.getElementById('invAccessGrid');
+  if (!grid) return;
+  const d = ROLE_ACCESS_DEFAULTS[role] || ROLE_ACCESS_DEFAULTS.sales;
+  grid.innerHTML = ACCESS_KEYS.map(function(a) {
+    return '<label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;cursor:pointer;">'
+      + '<input type="checkbox" class="inv-access-cb" data-access="' + a.key + '" ' + (d[a.key] ? 'checked' : '')
+      + ' style="width:15px;height:15px;cursor:pointer;accent-color:var(--accent);" />'
+      + a.label + '</label>';
+  }).join('');
 }
 
 async function submitInviteUser() {
@@ -25935,7 +26100,16 @@ async function submitInviteUser() {
     promo_code_at_invite:    promoCode    || null,
     referral_code_at_invite: referralCode || null,
     manager_id_at_invite:    managerId    || null,
-    visibility_scope_at_invite: (role === 'manager' && scope) ? scope : null
+    visibility_scope_at_invite: (role === 'manager' && scope) ? scope : null,
+    // [ACCESS-V1] Granular per-member access chosen by the inviter. Copied onto
+    // users.permissions at accept time. Falls back to role default if somehow empty.
+    permissions_at_invite: (function() {
+      const cbs = document.querySelectorAll('#invAccessGrid .inv-access-cb');
+      if (!cbs.length) return null;
+      const out = {};
+      cbs.forEach(function(cb) { out[cb.dataset.access] = !!cb.checked; });
+      return out;
+    })()
   };
 
   const btn = document.querySelector('#inviteUserModal .btn-primary');
@@ -31368,7 +31542,7 @@ async function _renderLoginScreen(opts) {
       try {
         const { data: inv } = await supaClient
           .from('pending_invitations')
-          .select('name, role, manager_id_at_invite, visibility_scope_at_invite, commission_percent_at_invite, discount_percent_at_invite, promo_code_at_invite, referral_code_at_invite')
+          .select('name, role, manager_id_at_invite, visibility_scope_at_invite, commission_percent_at_invite, discount_percent_at_invite, promo_code_at_invite, referral_code_at_invite, permissions_at_invite')
           .eq('email', userEmail)
           .is('revoked_at', null)
           .order('created_at', { ascending: false })
@@ -31388,6 +31562,7 @@ async function _renderLoginScreen(opts) {
             discount_percent: inv.discount_percent_at_invite || null,
             promo_code: inv.promo_code_at_invite || null,
             referral_code: inv.referral_code_at_invite || null,
+            permissions: inv.permissions_at_invite || null,
             created_at: Date.now(), updated_at: Date.now(),
           }, { onConflict: 'id' });
           profile = await _fetchAuthenticatedProfile();
@@ -32017,7 +32192,7 @@ async function ensureAuth() {
       try {
         const { data: inv } = await supaClient
           .from('pending_invitations')
-          .select('name, role, manager_id_at_invite, visibility_scope_at_invite, commission_percent_at_invite, discount_percent_at_invite, promo_code_at_invite, referral_code_at_invite')
+          .select('name, role, manager_id_at_invite, visibility_scope_at_invite, commission_percent_at_invite, discount_percent_at_invite, promo_code_at_invite, referral_code_at_invite, permissions_at_invite')
           .eq('email', userEmail)
           .is('revoked_at', null)
           .order('created_at', { ascending: false })
@@ -32037,6 +32212,7 @@ async function ensureAuth() {
             discount_percent: inv.discount_percent_at_invite || null,
             promo_code: inv.promo_code_at_invite || null,
             referral_code: inv.referral_code_at_invite || null,
+            permissions: inv.permissions_at_invite || null,
             created_at: Date.now(), updated_at: Date.now(),
           }, { onConflict: 'id' });
           profile = await _fetchAuthenticatedProfile();
@@ -32865,6 +33041,11 @@ async function init() {
   showAestheticLoader();
   await loadAll();
   hideLoader();
+  // [FIX] Render the user profile immediately after loadAll() so the sidebar shows
+  // the real name/avatar, not a "User" placeholder. This avoids the "refresh to see
+  // your profile" feeling on first login — the user section populates the instant
+  // the profile loads from Supabase.
+  try { _sv3Sync(); } catch(e) {}
 
   // Phase 4 — Post-migration, handle_new_auth_user trigger always creates the public.users
   // row at signup. If it's missing here, that's a real anomaly: don't auto-create with a
@@ -33392,7 +33573,6 @@ function _sv2Sections() {
       { id: 'deactivated', label: 'Deactivated' }
     ] });
     groups.push({ label: 'Partners', items: [ { id: 'partnerApps', label: 'Applications', badge: papBadge } ] });
-    groups.push({ label: 'Business', items: [ { id: 'targets', label: 'Targets' } ] });
   }
   if (isOwner) {
     groups.push({ label: 'System', items: [
@@ -33678,30 +33858,38 @@ async function _sv2SendPwdReset() {
 
 // ---------- [2026-06-12 SETTINGS-V2 1b] Daily Reports: team activity + CSV ----------
 function _sv2TeamActivityRows(days) {
+  // Aggregate per-user activity from dailyStatsCache (source of truth for daily
+  // work counts: leads added, stage moves, messages sent, replies received).
+  // Previously this read leads[].activities[], which is no longer populated, so
+  // the panel always showed "no activity". dailyStatsCache holds the real data.
   const cutoff = Date.now() - days * 86400000;
   const per = {};
-  (state.leads || []).forEach(l => {
-    (l.activities || []).forEach(a => {
-      if (!a || !a.ts || a.ts < cutoff) return;
-      const uidKey = a.byUser || 'unknown';
-      if (!per[uidKey]) per[uidKey] = { calls: 0, messages: 0, replies: 0, total: 0 };
-      per[uidKey].total++;
-      if (a.channel === 'ph') per[uidKey].calls++;
-      else if (a.direction === 'sent') per[uidKey].messages++;
-      if (a.direction === 'received') per[uidKey].replies++;
+  Object.keys(dailyStatsCache || {}).forEach(dateKey => {
+    const dayMs = new Date(dateKey + 'T00:00:00').getTime();
+    if (isNaN(dayMs) || dayMs < cutoff) return;
+    const byUser = (dailyStatsCache[dateKey] && dailyStatsCache[dateKey].byUser) || {};
+    Object.keys(byUser).forEach(uidKey => {
+      const s = byUser[uidKey] || {};
+      if (!per[uidKey]) per[uidKey] = { added: 0, moved: 0, messages: 0, replies: 0, total: 0 };
+      per[uidKey].added    += s.added   || 0;
+      per[uidKey].moved    += s.moved   || 0;
+      per[uidKey].messages += s.sent    || 0;
+      per[uidKey].replies  += s.replies || 0;
     });
   });
   return Object.keys(per).map(uidKey => {
-    const u = state.users.find(x => x.id === uidKey);
-    return { name: u ? u.name : 'Unknown', ...per[uidKey] };
+    const u = (state.users || []).find(x => x.id === uidKey);
+    const r = per[uidKey];
+    r.total = r.added + r.moved + r.messages + r.replies;
+    return { name: u ? u.name : 'Unknown', ...r };
   }).sort((a, b) => b.total - a.total);
 }
 
 function _sv2ReportsPane() {
   const rows = _sv2TeamActivityRows(30);
   const table = rows.length
-    ? `<table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr style="text-align:left;color:var(--text-dim);"><th style="padding:5px 8px;">Team member</th><th style="padding:5px 8px;">Calls</th><th style="padding:5px 8px;">Messages</th><th style="padding:5px 8px;">Replies in</th><th style="padding:5px 8px;">Total</th></tr></thead><tbody>${rows.map(r =>
-        `<tr style="border-top:1px solid var(--border);"><td style="padding:5px 8px;font-weight:600;">${escapeHtml(r.name)}</td><td style="padding:5px 8px;">${r.calls}</td><td style="padding:5px 8px;">${r.messages}</td><td style="padding:5px 8px;">${r.replies}</td><td style="padding:5px 8px;">${r.total}</td></tr>`).join('')}</tbody></table>`
+    ? `<table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr style="text-align:left;color:var(--text-dim);"><th style="padding:5px 8px;">Team member</th><th style="padding:5px 8px;">Leads added</th><th style="padding:5px 8px;">Stage moves</th><th style="padding:5px 8px;">Messages</th><th style="padding:5px 8px;">Replies in</th><th style="padding:5px 8px;">Total</th></tr></thead><tbody>${rows.map(r =>
+        `<tr style="border-top:1px solid var(--border);"><td style="padding:5px 8px;font-weight:600;">${escapeHtml(r.name)}</td><td style="padding:5px 8px;">${r.added}</td><td style="padding:5px 8px;">${r.moved}</td><td style="padding:5px 8px;">${r.messages}</td><td style="padding:5px 8px;">${r.replies}</td><td style="padding:5px 8px;">${r.total}</td></tr>`).join('')}</tbody></table>`
     : '<div style="color:var(--text-faint);font-size:12px;padding:8px 0;">No activity logged in the last 30 days.</div>';
   return `
   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
@@ -33715,8 +33903,8 @@ function _sv2ReportsPane() {
 
 async function _sv2ExportReportsCSV() {
   try {
-    const lines = ['Team activity (last 30 days)', 'Name,Calls,Messages,Replies,Total'];
-    _sv2TeamActivityRows(30).forEach(r => lines.push(`"${r.name.replace(/"/g, '""')}",${r.calls},${r.messages},${r.replies},${r.total}`));
+    const lines = ['Team activity (last 30 days)', 'Name,Leads added,Stage moves,Messages,Replies,Total'];
+    _sv2TeamActivityRows(30).forEach(r => lines.push(`"${r.name.replace(/"/g, '""')}",${r.added},${r.moved},${r.messages},${r.replies},${r.total}`));
     lines.push('', 'Daily snapshots');
     const reports = await loadDailyReports(30);
     if (reports.length) {
@@ -33909,27 +34097,34 @@ var _svg = function(name) {
   return icons[name] || '';
 };
 function _sv3NavHtml() {
-  let role = 'sales';
-  try { role = _sv2Role(); } catch(e) {}
-  const isOM = role === 'owner' || role === 'manager';
   const v = (window.state && state.view) || 'list';
   const act = id => v === id ? ' active' : '';
+  // [ACCESS-V1] Each section is gated by userCan(). Role defaults reproduce the
+  // previous owner/manager-only ("isOM") behavior exactly, so users without an
+  // explicit permissions object see no change.
+  const can = (k) => { try { return userCan(k); } catch(e) { return true; } };
   let h = '';
-  h += `<button class="view-tab${act('today')}" data-view="today" onclick="_sv3Nav('today')">${_svg('dashboard')} Dashboard<span class="sv3-badge" id="sv3BadgeToday"></span></button>`;
-  h += `<button class="view-tab${act('list')}" data-view="list" onclick="_sv3Nav('list')">${_svg('leads')} Leads</button>`;
-  h += `<button class="view-tab${act('kanban')}" data-view="kanban" onclick="_sv3Nav('kanban')">${_svg('kanban')} Kanban</button>`;
-  h += `<button class="view-tab${act('tasks')}" data-view="tasks" onclick="_sv3Nav('tasks')">${_svg('tasks')} Tasks</button>`;
-  h += `<button class="view-tab${act('inbox')}" data-view="inbox" onclick="_sv3Nav('inbox')">${_svg('inbox')} Inbox<span class="sv3-badge" id="sv3BadgeInbox"></span></button>`;
-  if (isOM) {
+  if (can('dashboard')) h += `<button class="view-tab${act('today')}" data-view="today" onclick="_sv3Nav('today')">${_svg('dashboard')} Dashboard<span class="sv3-badge" id="sv3BadgeToday"></span></button>`;
+  if (can('leads'))     h += `<button class="view-tab${act('list')}" data-view="list" onclick="_sv3Nav('list')">${_svg('leads')} Leads</button>`;
+  if (can('kanban'))    h += `<button class="view-tab${act('kanban')}" data-view="kanban" onclick="_sv3Nav('kanban')">${_svg('kanban')} Kanban</button>`;
+  if (can('tasks'))     h += `<button class="view-tab${act('tasks')}" data-view="tasks" onclick="_sv3Nav('tasks')">${_svg('tasks')} Tasks</button>`;
+  if (can('inbox'))     h += `<button class="view-tab${act('inbox')}" data-view="inbox" onclick="_sv3Nav('inbox')">${_svg('inbox')} Inbox<span class="sv3-badge" id="sv3BadgeInbox"></span></button>`;
+  // Network group — show only if at least one child is permitted.
+  const showPartners = can('partners');
+  let showComm = false;
+  try { showComm = can('commissions') && (typeof _canSeeCommissions !== 'function' || _canSeeCommissions()); } catch(e) { showComm = can('commissions'); }
+  if (showPartners || showComm) {
     h += `<div class="sv3-group">Network</div>`;
-    h += `<button class="view-tab" onclick="_sv3Modal('partnerApps')">${_svg('partners')} Partners</button>`;
-    try { if (typeof _canSeeCommissions === 'function' && _canSeeCommissions()) {
-      h += `<button class="view-tab${act('commissions')}" data-view="commissions" onclick="_sv3Nav('commissions')">${_svg('commissions')} Commissions</button>`;
-    } } catch(e) {}
+    if (showPartners) h += `<button class="view-tab" onclick="_sv3Modal('partnerApps')">${_svg('partners')} Partners</button>`;
+    if (showComm)     h += `<button class="view-tab${act('commissions')}" data-view="commissions" onclick="_sv3Nav('commissions')">${_svg('commissions')} Commissions</button>`;
+  }
+  // Insights group — show only if at least one child is permitted.
+  const showA = can('analytics'), showR = can('reports'), showT = can('targets');
+  if (showA || showR || showT) {
     h += `<div class="sv3-group">Insights</div>`;
-    h += `<button class="view-tab${act('analytics')}" data-view="analytics" onclick="_sv3Nav('analytics')">${_svg('analytics')} Analytics</button>`;
-    h += `<button class="view-tab${act('reports')}" data-view="reports" onclick="_sv3Nav('reports')">${_svg('reports')} Reports</button>`;
-    h += `<button class="view-tab${act('targets')}" data-view="targets" onclick="_sv3Nav('targets')">${_svg('targets')} Targets</button>`;
+    if (showA) h += `<button class="view-tab${act('analytics')}" data-view="analytics" onclick="_sv3Nav('analytics')">${_svg('analytics')} Analytics</button>`;
+    if (showR) h += `<button class="view-tab${act('reports')}" data-view="reports" onclick="_sv3Nav('reports')">${_svg('reports')} Reports</button>`;
+    if (showT) h += `<button class="view-tab${act('targets')}" data-view="targets" onclick="_sv3Nav('targets')">${_svg('targets')} Targets</button>`;
   }
   return h;
 }
@@ -33999,6 +34194,8 @@ function _sv3Sync() {
     nav.innerHTML = _sv3NavHtml();
     bot.innerHTML = _sv3BottomHtml();
   }
+  // [ACCESS-V1] Reflect add-lead permission on the static header buttons.
+  try { _applyAccessUI(); } catch(e) {}
   try {
     const t = document.getElementById('todayTabBadge');
     const i = document.getElementById('inboxTabBadge');
