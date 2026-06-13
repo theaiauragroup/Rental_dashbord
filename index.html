@@ -33650,7 +33650,7 @@ function _sv2Content(section) {
       case 'targets': return renderTargetsTab();
       case 'integrations':
         return _sv2PillPane('integrations', [
-          { id: 'ai', label: '🤖 AI Key', fn: renderAIKeyTab },
+          { id: 'ai', label: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><rect x="2" y="2" width="20" height="20" rx="4"/><rect x="6" y="6" width="4" height="4"/><rect x="14" y="6" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="14" y="14" width="4" height="4"/></svg> AI Key', fn: renderAIKeyTab },
           { id: 'templates', label: 'Templates', fn: renderTemplatesTab },
           { id: 'channelFormats', label: 'AI Plan Formats', fn: function() {
               return '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.35);border-radius:var(--r-md);padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--text);">⚠ <b>Advanced feature.</b> These JSON schemas control how the AI writes per-channel messages. Only edit if AI output is consistently wrong for a channel.</div>' + renderChannelFormatsTab();
@@ -33666,7 +33666,7 @@ function _sv2Content(section) {
             { id: 'reports', label: 'Daily Reports', fn: _sv2ReportsPane },
             { id: 'data', label: 'Data', fn: renderDataTab },
             { id: 'trash', label: `Trash (${state.trash.length})`, fn: renderTrashTab },
-            { id: 'userGuide', label: '📖 User Guide', fn: renderUserGuideTab },
+            { id: 'userGuide', label: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> User Guide', fn: renderUserGuideTab },
             { id: 'debug', label: 'Self-Test', fn: renderDebugTab }
           );
         }
@@ -33796,6 +33796,22 @@ window.renderSettings = renderSettings;
 // the active state with zero changes. Modals (z-index 100) stay on top.
 // ============================================================
 
+var _svg = function(name) {
+  var icons = {
+    dashboard: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>',
+    leads: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+    kanban: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="5" height="18" rx="1"/><rect x="9.5" y="3" width="5" height="12" rx="1"/><rect x="16" y="3" width="5" height="8" rx="1"/></svg>',
+    tasks: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+    inbox: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>',
+    partners: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14s1 0 2-1 1-3 3-4 4-1 4 3-4 5-4 5H2s-4-2-4-5 3-4 4-1 2 3 3 4 2 1 2 1"/></svg>',
+    commissions: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+    analytics: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+    reports: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+    targets: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+    settings: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>'
+  };
+  return icons[name] || '';
+};
 function _sv3NavHtml() {
   let role = 'sales';
   try { role = _sv2Role(); } catch(e) {}
@@ -33803,21 +33819,21 @@ function _sv3NavHtml() {
   const v = (window.state && state.view) || 'list';
   const act = id => v === id ? ' active' : '';
   let h = '';
-  h += `<button class="view-tab${act('today')}" data-view="today" onclick="_sv3Nav('today')">📊 Dashboard<span class="sv3-badge" id="sv3BadgeToday"></span></button>`;
-  h += `<button class="view-tab${act('list')}" data-view="list" onclick="_sv3Nav('list')">👥 Leads</button>`;
-  h += `<button class="view-tab${act('kanban')}" data-view="kanban" onclick="_sv3Nav('kanban')">🗂 Kanban</button>`;
-  h += `<button class="view-tab${act('tasks')}" data-view="tasks" onclick="_sv3Nav('tasks')">✅ Tasks</button>`;
-  h += `<button class="view-tab${act('inbox')}" data-view="inbox" onclick="_sv3Nav('inbox')">📥 Inbox<span class="sv3-badge" id="sv3BadgeInbox"></span></button>`;
+  h += `<button class="view-tab${act('today')}" data-view="today" onclick="_sv3Nav('today')">${_svg('dashboard')} Dashboard<span class="sv3-badge" id="sv3BadgeToday"></span></button>`;
+  h += `<button class="view-tab${act('list')}" data-view="list" onclick="_sv3Nav('list')">${_svg('leads')} Leads</button>`;
+  h += `<button class="view-tab${act('kanban')}" data-view="kanban" onclick="_sv3Nav('kanban')">${_svg('kanban')} Kanban</button>`;
+  h += `<button class="view-tab${act('tasks')}" data-view="tasks" onclick="_sv3Nav('tasks')">${_svg('tasks')} Tasks</button>`;
+  h += `<button class="view-tab${act('inbox')}" data-view="inbox" onclick="_sv3Nav('inbox')">${_svg('inbox')} Inbox<span class="sv3-badge" id="sv3BadgeInbox"></span></button>`;
   if (isOM) {
     h += `<div class="sv3-group">Network</div>`;
-    h += `<button class="view-tab" onclick="_sv3Modal('partnerApps')">🤝 Partners</button>`;
+    h += `<button class="view-tab" onclick="_sv3Modal('partnerApps')">${_svg('partners')} Partners</button>`;
     try { if (typeof _canSeeCommissions === 'function' && _canSeeCommissions()) {
-      h += `<button class="view-tab${act('commissions')}" data-view="commissions" onclick="_sv3Nav('commissions')">💰 Commissions</button>`;
+      h += `<button class="view-tab${act('commissions')}" data-view="commissions" onclick="_sv3Nav('commissions')">${_svg('commissions')} Commissions</button>`;
     } } catch(e) {}
     h += `<div class="sv3-group">Insights</div>`;
-    h += `<button class="view-tab${act('analytics')}" data-view="analytics" onclick="_sv3Nav('analytics')">📈 Analytics</button>`;
-    h += `<button class="view-tab" onclick="_sv3Modal('reports')">📄 Reports</button>`;
-    h += `<button class="view-tab" onclick="_sv3Modal('targets')">🎯 Targets</button>`;
+    h += `<button class="view-tab${act('analytics')}" data-view="analytics" onclick="_sv3Nav('analytics')">${_svg('analytics')} Analytics</button>`;
+    h += `<button class="view-tab" onclick="_sv3Modal('reports')">${_svg('reports')} Reports</button>`;
+    h += `<button class="view-tab" onclick="_sv3Modal('targets')">${_svg('targets')} Targets</button>`;
   }
   return h;
 }
@@ -33828,7 +33844,7 @@ function _sv3BottomHtml() {
   const recUnset = isOwner && !(cu.recovery_set_at || cu.recovery_passphrase_hash);
   const name = cu ? cu.name : '';
   const ini = (typeof initials === 'function' && name) ? initials(name) : '·';
-  return `<button class="view-tab" onclick="_sv3Modal('profile')">⚙️ Settings${recUnset ? '<span class="sv3-dot"></span>' : ''}</button>
+  return `<button class="view-tab" onclick="_sv3Modal('profile')">${_svg('settings')} Settings${recUnset ? '<span class="sv3-dot"></span>' : ''}</button>
   <button class="view-tab" onclick="_sv3Modal('profile')" style="min-height:48px;"><span style="width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${ini}</span> ${name ? escapeHtml(name) : ''}</button>`;
 }
 
