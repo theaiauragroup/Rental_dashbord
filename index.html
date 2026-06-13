@@ -202,6 +202,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .btn-danger { background: white; border-color: var(--hot); color: var(--hot); }
 .btn-danger:hover { background: var(--hot); border-color: var(--hot); color: white; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
+.settings-tab-btn { font-weight: 700; font-size: 13px; padding: 8px 16px; }
 /* =================================================================
    GLOBAL INTERACTION POLISH — applies across the whole CRM.
    Every tappable surface (buttons, pills, chips, contact icons,
@@ -548,6 +549,8 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
     background-color var(--t-medium) var(--ease-snap),
     background-image var(--t-medium) var(--ease-snap);
 }
+.kanban-card.dragging { opacity: 0.4; }
+.kanban-col.drag-over { outline: 2px dashed var(--accent); outline-offset: -2px; background: rgba(34,197,94,0.05); }
 .kanban-card:active { transform: scale(0.97); transition-duration: var(--t-instant); }
 .kanban-card:hover { border-color: rgba(34, 197, 94, 0.5); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1); background: rgba(220, 252, 231, 0.25); }
 .kanban-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 6px; margin-bottom: 6px; }
@@ -18621,8 +18624,10 @@ function renderContent() {
  else if (state.view === 'list') wrap.innerHTML = searchBanner + renderListView();
  else if (state.view === 'kanban') wrap.innerHTML = searchBanner + renderKanbanView();
  else if (state.view === 'tasks') wrap.innerHTML = searchBanner + renderTasksView();
- else if (state.view === 'analytics') wrap.innerHTML = searchBanner + renderAnalyticsView();
- _updateTodayTabBadge();
+  else if (state.view === 'analytics') wrap.innerHTML = searchBanner + renderAnalyticsView();
+  else if (state.view === 'reports') wrap.innerHTML = searchBanner + renderReportsView();
+  else if (state.view === 'targets') wrap.innerHTML = searchBanner + renderTargetsView();
+  _updateTodayTabBadge();
  // Phase 6.5 post-audit Issue 6.5 — refresh the inbox unread badge whenever view changes
  if (typeof _updateInboxTabBadge === 'function') _updateInboxTabBadge();
 }
@@ -19235,24 +19240,32 @@ function suggestNextChannel(lead) {
 }
 
 function renderKanbanView() {
- const list = getFilteredLeads();
- return `<div class="kanban">${STAGES.map(stage => {
-  const items = list.filter(l =>l.stage === stage);
-  return `<div class="kanban-col" data-stage="${stage}">
-   <div class="kanban-col-head"><span class="kanban-stage-name">${stage}</span><span class="kanban-stage-count">${items.length}</span></div>
-   ${items.map(l => {
-     const unread = typeof _leadUnreadReplyCount === 'function' ? _leadUnreadReplyCount(l) : 0;
-     const unreadBadge = unread > 0
-       ? '<span title="' + unread + ' unread repl' + (unread === 1 ? 'y' : 'ies') + '" style="position: absolute; top: 6px; right: 6px; min-width: 18px; height: 18px; padding: 0 6px; background: var(--accent); color: white; border-radius: 999px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 0 0 2px white;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + (unread > 99 ? '99+' : unread) + '</span>'
-       : '';
-     return '<div class="kanban-card" onclick="openLeadDetail(\'' + l.id + '\')" style="position: relative;">'
-       + unreadBadge
-       + '<div class="kanban-card-top"><div><div class="kanban-card-name">' + escapeHtml(l.name) + ' ' + (typeof leadPendingRing === 'function' ? leadPendingRing(l) : '') + '</div><div class="kanban-card-sub">' + escapeHtml(l.city || '') + (l.state ? ', ' + l.state : '') + '</div></div>' + (l.temp ? '<span class="pill ' + l.temp + '">' + l.temp[0].toUpperCase() + '</span>' : '') + '</div>'
-       + '<div class="kanban-card-meta"><span class="stage-pill">' + (l.type === 'business' ? ({rental:'Rental',dealership:'Dealer',brokerage:'Broker'}[l.bizType] || '') : l.type === 'partner' ? ({influencer:'Influencer',broker:'Broker',brand:'Brand'}[l.bizType] || 'Partner') : 'Owner') + '</span><span class="kanban-card-value">' + fmtMoney(l.value) + '</span></div>'
-       + '</div>';
-   }).join('') || '<div style="padding: 20px 4px; text-align: center; color: var(--text-faint); font-size: 11px;">empty</div>'}
-  </div>`;
- }).join('')}</div>`;
+  const list = getFilteredLeads();
+  return `<div class="kanban">${STAGES.map(stage => {
+   const items = list.filter(l =>l.stage === stage);
+   return `<div class="kanban-col" data-stage="${stage}" ondragover="event.preventDefault()" ondragenter="this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleKanbanDrop(event,'${stage}')">
+    <div class="kanban-col-head"><span class="kanban-stage-name">${stage}</span><span class="kanban-stage-count">${items.length}</span></div>
+    ${items.map(l => {
+      const unread = typeof _leadUnreadReplyCount === 'function' ? _leadUnreadReplyCount(l) : 0;
+      const unreadBadge = unread > 0
+        ? '<span title="' + unread + ' unread repl' + (unread === 1 ? 'y' : 'ies') + '" style="position: absolute; top: 6px; right: 6px; min-width: 18px; height: 18px; padding: 0 6px; background: var(--accent); color: white; border-radius: 999px; font-size: 10px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; gap: 3px; box-shadow: 0 0 0 2px white;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>' + (unread > 99 ? '99+' : unread) + '</span>'
+        : '';
+      return '<div class="kanban-card" draggable="true" ondragstart="event.dataTransfer.setData(\'text/plain\',\'' + l.id + '\');this.classList.add(\'dragging\')" ondragend="this.classList.remove(\'dragging\')" onclick="openLeadDetail(\'' + l.id + '\')" style="position: relative;">'
+        + unreadBadge
+        + '<div class="kanban-card-top"><div><div class="kanban-card-name">' + escapeHtml(l.name) + ' ' + (typeof leadPendingRing === 'function' ? leadPendingRing(l) : '') + '</div><div class="kanban-card-sub">' + escapeHtml(l.city || '') + (l.state ? ', ' + l.state : '') + '</div></div>' + (l.temp ? '<span class="pill ' + l.temp + '">' + l.temp[0].toUpperCase() + '</span>' : '') + '</div>'
+        + '<div class="kanban-card-meta"><span class="stage-pill">' + (l.type === 'business' ? ({rental:'Rental',dealership:'Dealer',brokerage:'Broker'}[l.bizType] || '') : l.type === 'partner' ? ({influencer:'Influencer',broker:'Broker',brand:'Brand'}[l.bizType] || 'Partner') : 'Owner') + '</span><span class="kanban-card-value">' + fmtMoney(l.value) + '</span></div>'
+        + '</div>';
+    }).join('') || '<div style="padding: 20px 4px; text-align: center; color: var(--text-faint); font-size: 11px;">empty</div>'}
+   </div>`;
+  }).join('')}</div>`;
+}
+
+function handleKanbanDrop(e, stage) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  const leadId = e.dataTransfer.getData('text/plain');
+  if (!leadId) return;
+  changeLeadStage(leadId, stage);
 }
 
 function renderStats() {
@@ -20385,6 +20398,31 @@ function renderAnalyticsView() {
       ${safeChart(() => chartDailyActions(stats), 'Daily actions')}
       ${safeChart(() => chartWinLossReasons(stats), 'Win/Loss reasons')}
     </div>`;
+}
+
+function renderReportsView() {
+  return '<div style="padding: 0 4px; max-width: 900px;"><div style="font-size:15px;font-weight:700;margin-bottom:10px;">Daily Reports</div>' + _sv2ReportsPane() + '</div>';
+}
+
+function renderTargetsView() {
+  const period = window._sv2TgtPeriod || 'daily';
+  const canEdit = _sv2Role() === 'owner';
+  const dis = canEdit ? '' : 'disabled';
+  const actuals = _sv2TgtActuals(period);
+  const metrics = [
+    { id: 'leads', label: 'Leads added' },
+    { id: 'messages', label: 'Messages sent' },
+    { id: 'calls', label: 'Calls made' }
+  ];
+  const pills = ['daily', 'weekly', 'monthly'].map(p =>
+    '<button class="btn btn-sm ' + (p === period ? 'btn-primary' : '') + '" onclick="window._sv2TgtPeriod=\'' + p + '\'; renderContent();">' + p.charAt(0).toUpperCase() + p.slice(1) + '</button>').join('');
+  const companyRows = metrics.map(m => '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;"><div style="width:120px;font-size:12.5px;font-weight:600;">' + m.label + '</div><input type="number" min="0" ' + dis + ' value="' + _sv2TgtGet('company', null, period, m.id) + '" onchange="_sv2TgtSet(\'company\', null, \'' + period + '\', \'' + m.id + '\', this.value); renderContent();" style="width:80px;font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-card);color:var(--text);" /><div style="flex:1;min-width:120px;">' + _sv2TgtBar(actuals.company[m.id], _sv2TgtGet('company', null, period, m.id)) + '</div></div>');
+  const team = (state.users || []).filter(u => !u.deactivatedAt && ['owner', 'manager', 'sales', 'broker'].includes(u.role));
+  const teamRows = team.map(u => {
+    const ua = actuals.perUser[u.id] || { leads: 0, messages: 0, calls: 0 };
+    return '<tr style="border-top:1px solid var(--border);"><td style="padding:7px 8px;font-weight:600;font-size:12.5px;white-space:nowrap;">' + escapeHtml(u.name) + '</td>' + metrics.map(m => '<td style="padding:7px 8px;"><div style="display:flex;align-items:center;gap:6px;"><input type="number" min="0" ' + dis + ' value="' + _sv2TgtGet('user', u.id, period, m.id) + '" onchange="_sv2TgtSet(\'user\', \'' + u.id + '\', \'' + period + '\', \'' + m.id + '\', this.value); renderContent();" style="width:58px;font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-card);color:var(--text);" /><span style="font-size:11px;color:var(--text-dim);white-space:nowrap;">' + ua[m.id] + '</span></div></td>').join('') + '</tr>';
+  }).join('');
+  return '<div style="padding: 0 4px;"><div style="font-size:15px;font-weight:700;margin-bottom:2px;">Targets</div><div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">' + (canEdit ? 'Set goals for the company and each team member — progress updates live.' : 'Read-only — the Owner sets targets.') + '</div><div class="sv2-pillbar">' + pills + '</div><div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:14px;margin-bottom:14px;max-width:560px;"><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);margin-bottom:10px;">Company \u2014 ' + period + '</div>' + companyRows.join('') + '</div><div style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-md);padding:10px 6px;overflow-x:auto;"><div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);margin:4px 8px 8px;">Per person \u2014 ' + period + ' <span style="font-weight:400;text-transform:none;letter-spacing:0;">(number = target, gray = actual so far)</span></div><table style="width:100%;border-collapse:collapse;"><thead><tr style="text-align:left;color:var(--text-dim);font-size:11px;"><th style="padding:4px 8px;">Member</th>' + metrics.map(m => '<th style="padding:4px 8px;">' + m.label + '</th>').join('') + '</tr></thead><tbody>' + teamRows + '</tbody></table></div></div>';
 }
 
 function chartTaskCompletion() {
@@ -24171,12 +24209,10 @@ function renderSettings() {
  const tabs = [
     { id: 'profile', label: 'Profile' },
     { id: 'users', label: 'Users' },
-    { id: 'targets', label: 'Targets' },
     { id: 'ai', label: '🤖 AI Key' },
     { id: 'templates', label: 'Templates' },
     { id: 'channelFormats', label: 'AI Plan Formats' },
     { id: 'userGuide', label: '📖 User Guide' },
-    { id: 'reports', label: 'Daily Reports' },
     { id: 'data', label: 'Data' },
     { id: 'trash', label: `Trash (${state.trash.length})` },
     { id: 'debug', label: 'Self-Test' }
@@ -24185,7 +24221,7 @@ function renderSettings() {
   <div class="modal">
    <div class="modal-header"><div><div class="modal-title">Settings</div></div><button class="modal-close" onclick="closeModal('settingsModal')">✕</button></div>
    <div class="modal-body">
-    <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
+    <div style="display: flex; gap: 4px; margin-bottom: 18px; flex-wrap: wrap;">${tabs.map(t => `<button class="btn btn-sm settings-tab-btn ${tab === t.id ? 'btn-primary' : ''}" onclick="window._settingsTab='${t.id}'; renderSettings();">${t.label}</button>`).join('')}</div>
     <div>${renderSettingsTab(tab)}</div>
    </div>
   </div>`;
@@ -24194,16 +24230,13 @@ function renderSettings() {
 function renderSettingsTab(tab) {
   if (tab === 'profile') return renderProfileTab();
   if (tab === 'users') return renderUsersTab();
-  if (tab === 'targets') return renderTargetsTab();
   if (tab === 'ai') return renderAIKeyTab();
   if (tab === 'templates') return renderTemplatesTab();
   if (tab === 'channelFormats') return renderChannelFormatsTab(); // Issue 12
   if (tab === 'userGuide') return renderUserGuideTab(); // Phase 6 — multi-topic shell
-  if (tab === 'reports') return renderReportsTab();
   if (tab === 'data') return renderDataTab();
   if (tab === 'trash') return renderTrashTab();
   if (tab === 'debug') return renderDebugTab();
-  if (tab === 'reports') return renderReportsTab();
   if (tab === 'access') return renderAccessTab();
   return '';
 }
@@ -33709,7 +33742,6 @@ function _sv2Content(section) {
       case 'invitations': return _sv2UsersPane('pending');
       case 'deactivated': return _sv2UsersPane('deactivated');
       case 'partnerApps': return (typeof renderPartnerAppsTab === 'function') ? renderPartnerAppsTab() : '';
-      case 'targets': return renderTargetsTab();
       case 'integrations':
         return _sv2PillPane('integrations', [
           { id: 'ai', label: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><rect x="2" y="2" width="20" height="20" rx="4"/><rect x="6" y="6" width="4" height="4"/><rect x="14" y="6" width="4" height="4"/><rect x="6" y="14" width="4" height="4"/><rect x="14" y="14" width="4" height="4"/></svg> AI Key', fn: renderAIKeyTab },
@@ -33725,7 +33757,6 @@ function _sv2Content(section) {
         }
         if (role === 'owner') {
           pills.push(
-            { id: 'reports', label: 'Daily Reports', fn: _sv2ReportsPane },
             { id: 'data', label: 'Data', fn: renderDataTab },
             { id: 'trash', label: `Trash (${state.trash.length})`, fn: renderTrashTab },
             { id: 'userGuide', label: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> User Guide', fn: renderUserGuideTab },
@@ -33894,8 +33925,8 @@ function _sv3NavHtml() {
     } } catch(e) {}
     h += `<div class="sv3-group">Insights</div>`;
     h += `<button class="view-tab${act('analytics')}" data-view="analytics" onclick="_sv3Nav('analytics')">${_svg('analytics')} Analytics</button>`;
-    h += `<button class="view-tab" onclick="_sv3Modal('reports')">${_svg('reports')} Reports</button>`;
-    h += `<button class="view-tab" onclick="_sv3Modal('targets')">${_svg('targets')} Targets</button>`;
+    h += `<button class="view-tab${act('reports')}" data-view="reports" onclick="_sv3Nav('reports')">${_svg('reports')} Reports</button>`;
+    h += `<button class="view-tab${act('targets')}" data-view="targets" onclick="_sv3Nav('targets')">${_svg('targets')} Targets</button>`;
   }
   return h;
 }
