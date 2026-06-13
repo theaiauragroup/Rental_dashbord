@@ -202,7 +202,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .btn-danger { background: white; border-color: var(--hot); color: var(--hot); }
 .btn-danger:hover { background: var(--hot); border-color: var(--hot); color: white; }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
-.settings-tab-btn { font-weight: 700; font-size: 13px; padding: 8px 16px; }
+button.settings-tab-btn { font-weight: 700 !important; font-size: 13px; padding: 8px 16px; }
+main.standalone-mode > .timer-cards,
+main.standalone-mode > .briefing,
+main.standalone-mode > .view-bar,
+main.standalone-mode > .filter-bar { display: none; }
 /* =================================================================
    GLOBAL INTERACTION POLISH — applies across the whole CRM.
    Every tappable surface (buttons, pills, chips, contact icons,
@@ -18619,14 +18623,14 @@ function renderContent() {
    const _cnt = getFilteredLeads().length;
    searchBanner = '<div class="search-results-banner">Found <strong>' + _cnt + '</strong> lead' + (_cnt === 1 ? '' : 's') + ' matching \u201c' + escapeHtml(_q) + '\u201d</div>';
  }
- if (state.view === 'today') wrap.innerHTML = searchBanner + renderTodayView();
- else if (state.view === 'inbox') wrap.innerHTML = searchBanner + renderInboxView();
- else if (state.view === 'list') wrap.innerHTML = searchBanner + renderListView();
- else if (state.view === 'kanban') wrap.innerHTML = searchBanner + renderKanbanView();
- else if (state.view === 'tasks') wrap.innerHTML = searchBanner + renderTasksView();
-  else if (state.view === 'analytics') wrap.innerHTML = searchBanner + renderAnalyticsView();
-  else if (state.view === 'reports') wrap.innerHTML = searchBanner + renderReportsView();
-  else if (state.view === 'targets') wrap.innerHTML = searchBanner + renderTargetsView();
+  if (state.view === 'today') { wrap.innerHTML = searchBanner + renderTodayView(); document.querySelector('main.main')?.classList.remove('standalone-mode'); }
+  else if (state.view === 'inbox') { wrap.innerHTML = searchBanner + renderInboxView(); document.querySelector('main.main')?.classList.remove('standalone-mode'); }
+  else if (state.view === 'list') { wrap.innerHTML = searchBanner + renderListView(); document.querySelector('main.main')?.classList.remove('standalone-mode'); }
+  else if (state.view === 'kanban') { wrap.innerHTML = searchBanner + renderKanbanView(); document.querySelector('main.main')?.classList.remove('standalone-mode'); }
+  else if (state.view === 'tasks') { wrap.innerHTML = searchBanner + renderTasksView(); document.querySelector('main.main')?.classList.remove('standalone-mode'); }
+   else if (state.view === 'analytics') { wrap.innerHTML = searchBanner + renderAnalyticsView(); document.querySelector('main.main')?.classList.remove('standalone-mode'); }
+   else if (state.view === 'reports') { wrap.innerHTML = searchBanner + renderReportsView(); document.querySelector('main.main')?.classList.add('standalone-mode'); }
+   else if (state.view === 'targets') { wrap.innerHTML = searchBanner + renderTargetsView(); document.querySelector('main.main')?.classList.add('standalone-mode'); }
   _updateTodayTabBadge();
  // Phase 6.5 post-audit Issue 6.5 — refresh the inbox unread badge whenever view changes
  if (typeof _updateInboxTabBadge === 'function') _updateInboxTabBadge();
@@ -24204,9 +24208,8 @@ function openSettingsModal(activeTab = 'profile') {
 }
 
 function renderSettings() {
- const tab = window._settingsTab || 'profile';
-  // renderReportsTab() handles async loading internally
- const tabs = [
+  const tab = window._settingsTab || 'profile';
+  const tabs = [
     { id: 'profile', label: 'Profile' },
     { id: 'users', label: 'Users' },
     { id: 'ai', label: '🤖 AI Key' },
