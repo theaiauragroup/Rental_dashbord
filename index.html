@@ -26440,6 +26440,7 @@ async function submitDeactivateUser(userId, leadCount, teamMemberIds) {
   // check, OR by the realtime watcher if their tab is open and connected.
 
   closeModal('deactivateUserModal');
+  closeModal('userDetailsModal');
   await _refreshUserMgmt();
   showToast(`${u.name} deactivated`, 'success');
 }
@@ -31324,7 +31325,39 @@ async function _renderLoginScreen(opts) {
     currentSession = data.session;
     state.currentUserId = data.user.id;
 
-    const profile = await _fetchAuthenticatedProfile();
+    let profile = await _fetchAuthenticatedProfile();
+    if (!profile) {
+      // Profile row missing — attempt self-repair from a still-valid invite for this email.
+      const userEmail = (data.user.email || '').toLowerCase();
+      try {
+        const { data: inv } = await supaClient
+          .from('pending_invitations')
+          .select('name, role, manager_id_at_invite, visibility_scope_at_invite, commission_percent_at_invite, discount_percent_at_invite, promo_code_at_invite, referral_code_at_invite')
+          .eq('email', userEmail)
+          .is('revoked_at', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (inv) {
+          const invRole = inv.role === 'rep' ? 'sales' : inv.role;
+          await supaClient.from('users').upsert({
+            id: data.user.id,
+            name: inv.name || userEmail.split('@')[0],
+            email: userEmail,
+            role: invRole,
+            deleted: false,
+            manager_id: inv.manager_id_at_invite || null,
+            visibility_scope: invRole === 'manager' ? inv.visibility_scope_at_invite : null,
+            commission_percent: inv.commission_percent_at_invite || null,
+            discount_percent: inv.discount_percent_at_invite || null,
+            promo_code: inv.promo_code_at_invite || null,
+            referral_code: inv.referral_code_at_invite || null,
+            created_at: Date.now(), updated_at: Date.now(),
+          }, { onConflict: 'id' });
+          profile = await _fetchAuthenticatedProfile();
+        }
+      } catch(e) { console.warn('Profile self-repair failed:', e); }
+    }
     if (!profile) {
       errEl.textContent = 'Account profile not found. Please contact your admin.';
       await supaClient.auth.signOut();
@@ -31942,10 +31975,39 @@ async function ensureAuth() {
     currentSession = session;
     state.currentUserId = session.user.id;
 
-    const profile = await _fetchAuthenticatedProfile();
+    let profile = await _fetchAuthenticatedProfile();
     if (!profile) {
-      // Authenticated user with no public.users row — should not happen post-migration.
-      // Defensively sign out rather than auto-create with a default role.
+      const userEmail = (session.user.email || '').toLowerCase();
+      try {
+        const { data: inv } = await supaClient
+          .from('pending_invitations')
+          .select('name, role, manager_id_at_invite, visibility_scope_at_invite, commission_percent_at_invite, discount_percent_at_invite, promo_code_at_invite, referral_code_at_invite')
+          .eq('email', userEmail)
+          .is('revoked_at', null)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        if (inv) {
+          const invRole = inv.role === 'rep' ? 'sales' : inv.role;
+          await supaClient.from('users').upsert({
+            id: session.user.id,
+            name: inv.name || userEmail.split('@')[0],
+            email: userEmail,
+            role: invRole,
+            deleted: false,
+            manager_id: inv.manager_id_at_invite || null,
+            visibility_scope: invRole === 'manager' ? inv.visibility_scope_at_invite : null,
+            commission_percent: inv.commission_percent_at_invite || null,
+            discount_percent: inv.discount_percent_at_invite || null,
+            promo_code: inv.promo_code_at_invite || null,
+            referral_code: inv.referral_code_at_invite || null,
+            created_at: Date.now(), updated_at: Date.now(),
+          }, { onConflict: 'id' });
+          profile = await _fetchAuthenticatedProfile();
+        }
+      } catch(e) { console.warn('Profile self-repair failed:', e); }
+    }
+    if (!profile) {
       await supaClient.auth.signOut();
       currentSession = null; state.currentUserId = null;
       _renderLoginScreen({ flash: 'Account setup incomplete. Please contact your admin.' });
