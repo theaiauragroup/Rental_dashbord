@@ -33823,8 +33823,11 @@ function _sv3Sync() {
   const nav = document.getElementById('sv3Nav');
   const bot = document.getElementById('sv3Bottom');
   if (!nav || !bot) return;
-  nav.innerHTML = _sv3NavHtml();
-  bot.innerHTML = _sv3BottomHtml();
+  const cu = getCurrentUser();
+  if (cu || !nav.innerHTML.trim()) {
+    nav.innerHTML = _sv3NavHtml();
+    bot.innerHTML = _sv3BottomHtml();
+  }
   try {
     const t = document.getElementById('todayTabBadge');
     const i = document.getElementById('inboxTabBadge');
