@@ -25512,10 +25512,10 @@ function renderUsersTab() {
     <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap;">
       <div style="display:inline-flex;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;">
         ${subTabs.map(t => `
-          <button onclick="window._userMgmtSubTab='${t.id}'; if ('${t.id}'==='pending') window._sv2InvLoaded=false; _sv2Go('${t.id === 'active' ? 'users' : t.id === 'pending' ? 'invitations' : 'deactivated'}')"
+          <button onclick="_userMgmtSubTab='${t.id}'; if ('${t.id}'==='pending') window._sv2InvLoaded=false; _sv2Go('${t.id === 'active' ? 'users' : t.id === 'pending' ? 'invitations' : 'deactivated'}')"
             style="padding:7px 14px;background:${sub === t.id ? 'white' : 'transparent'};border:none;border-radius:6px;color:${sub === t.id ? 'var(--accent)' : 'var(--text)'};font-weight:${sub === t.id ? '700' : '500'};font-size:12.5px;cursor:pointer;font-family:inherit;transition:background 0.15s ease, color 0.15s ease;box-shadow:${sub === t.id ? '0 1px 2px rgba(0,0,0,0.06)' : 'none'};white-space:nowrap;"
-            onmouseover="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='rgba(0,0,0,0.04)'; }"
-            onmouseout="if (window._userMgmtSubTab !== '${t.id}') { this.style.background='transparent'; }">
+            onmouseover="if (_userMgmtSubTab !== '${t.id}') { this.style.background='rgba(0,0,0,0.04)'; }"
+            onmouseout="if (_userMgmtSubTab !== '${t.id}') { this.style.background='transparent'; }">
             ${t.label}
           </button>
         `).join('')}
@@ -33478,7 +33478,7 @@ async function _sv2RecVerifyExisting() {
 
 // ---------- [2026-06-12 SETTINGS-V2] Step 6: Team helpers ----------
 function _sv2UsersPane(sub) {
-  window._userMgmtSubTab = sub;
+  _userMgmtSubTab = sub;
   const search = sub === 'active'
     ? `<div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
         <input type="text" id="sv2USearch" placeholder="Search name or email…" oninput="_sv2FilterUsers()" style="max-width:240px;font-size:13px;padding:7px 10px;border:1px solid var(--border);border-radius:var(--r-md);background:var(--bg-card);color:var(--text);" />
