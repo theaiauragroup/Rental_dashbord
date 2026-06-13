@@ -17028,7 +17028,7 @@ function openUserSwitcher(isInitial = false) {
    </div>
    <div class="modal-body">
     <div class="who-grid">
-     ${state.users.map(u => `<div class="who-card" onclick="selectUser('${u.id}')"><div class="who-avatar" style="${userAvatarStyle(u)}">${u.pic ? '' : escapeHtml(initials(u.name))}</div><div class="who-name">${escapeHtml(u.name)}</div></div>`).join('')}
+     ${state.users.filter(u => !u.deactivatedAt && !u.deleted).map(u => `<div class="who-card" onclick="selectUser('${u.id}')"><div class="who-avatar" style="${userAvatarStyle(u)}">${u.pic ? '' : escapeHtml(initials(u.name))}</div><div class="who-name">${escapeHtml(u.name)}</div></div>`).join('')}
     </div>
    </div>
   </div>`;
