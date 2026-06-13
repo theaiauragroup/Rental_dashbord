@@ -3276,6 +3276,18 @@ if (window._aiauraBootGuard) {
 }
 window._aiauraBootGuard = true;
 
+// [2026-06-13 fix] Unique per-session id. Tag this on any row we write to a
+// realtime-subscribed table (leads/tasks/etc as `client_id`) so the realtime
+// handler in setupRealtimeSync can recognize "this is my own write" for ANY
+// event type (insert/update/delete), not just sent-activity updates, and skip
+// the expensive loadAll()+renderAll() that was causing the leads list to flash.
+window._aiauraClientId = (function() {
+  try {
+    if (crypto && crypto.randomUUID) return crypto.randomUUID();
+  } catch(e) {}
+  return 'c_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+})();
+
 // ============================================================
 // SUPABASE INTEGRATION - replaces localStorage shim
 // Project: Aiaura Fleets CRM
@@ -3640,6 +3652,16 @@ window.storage = {
       // in-memory state — only persistence is degraded for unmigrated columns until the
       // developer runs supabase_migration_phase_6_5_fix.sql.
       const rowOrig = _dbDeserialize(obj, id);
+      // [2026-06-13 fix] Tag rows on realtime-subscribed tables with this
+      // client's id so setupRealtimeSync can recognize "I wrote this" for any
+      // event type and skip the costly loadAll()+renderAll(), which was the
+      // cause of the leads list flashing/disappearing on the user's own edits.
+      // Harmless if the column doesn't exist — the schema-strip retry below
+      // will drop it automatically (added to knownMissing) on the first 400.
+      const _RT_TABLES = ['leads', 'tasks', 'handoff_notes', 'snoozed_leads', 'people', 'plans', 'plan_steps'];
+      if (_RT_TABLES.indexOf(table) !== -1 && window._aiauraClientId) {
+        rowOrig.client_id = window._aiauraClientId;
+      }
       // Apply any already-known missing columns up front to avoid the first 400.
       window._supabaseMissingColumns = window._supabaseMissingColumns || {};
       const knownMissing = window._supabaseMissingColumns[table] || new Set();
@@ -17040,16 +17062,13 @@ async function selectUser(id) {
  refreshUserPill();
  state.timers = { tabAccum: 0, activeAccum: 0, lastActive: 0, isActive: true };
  startTimers();
- if (!window._mainStarted) {
-  window._mainStarted = true;
-  setInterval(updateClocks, 1000); updateClocks();
-  setInterval(renderStats, 60000);
-  // Phase 4: refresh Today view every 60s so relative time labels and overdue states stay current
-  setInterval(function() {
-    if (state.view === 'today') renderContent();
-    else _updateTodayTabBadge();
-  }, 60000);
- }
+ // [2026-06-13 fix] Periodic refresh intervals (clocks, stats, Today view) are
+ // set up once in init() via window._mainStarted. Previously this function ALSO
+ // checked the same flag and registered its own (different) set of intervals —
+ // whichever ran first "won" and the other's intervals were silently skipped,
+ // so depending on load order either the Today view's 60s refresh or the
+ // stats/outcome-widgets 60s refresh never started, contributing to the
+ // appears/disappears flicker on the dashboard.
  renderAll();
 }
 function refreshUserPill() {
@@ -32114,9 +32133,17 @@ function setupRealtimeSync() {
     supaClient
       .channel('sync:' + table)
       .on('postgres_changes', { event: '*', schema: 'public', table }, async (payload) => {
-        // Phase 5: skip events caused by THIS client to avoid render thrashing on own actions
-        if (payload && payload.new && payload.new.sent_by === state.currentUserId && payload.eventType === 'UPDATE') {
-          // It's our own send — UI already updated optimistically. Refresh light.
+        // [2026-06-13 fix] Skip the full reload+rerender for ANY change that
+        // originated from THIS browser tab/session — not just sent-activity
+        // updates. Previously only `sent_by === currentUserId && UPDATE` was
+        // skipped, so every other self-write (insert, delete, plan/step save,
+        // task save, etc.) re-triggered loadAll() + renderAll(), causing the
+        // leads list to visibly flash/disappear/reappear on the user's own
+        // actions. We now check a client-tagged `client_id` field (set on all
+        // writes via _withClientTag) on either new or old row, for any event type.
+        const row = (payload && (payload.new || payload.old)) || {};
+        if (row.client_id && row.client_id === window._aiauraClientId) {
+          // It's our own write — UI already updated optimistically. Refresh light.
           renderContent();
           _updateTodayTabBadge();
           return;
@@ -32819,6 +32846,11 @@ async function init() {
     } catch(e) {}
     setInterval(updateClocks, 1000); updateClocks();
     setInterval(function() { renderStats(); renderOutcomeWidgets(); }, 60000);
+    // Phase 4: refresh Today view every 60s so relative time labels and overdue states stay current
+    setInterval(function() {
+      if (state.view === 'today') renderContent();
+      else _updateTodayTabBadge();
+    }, 60000);
   }
 
   // Phase 6.6 PHASE 8 ISSUE 24 — Universal search: 200ms debounce so rapid typing
